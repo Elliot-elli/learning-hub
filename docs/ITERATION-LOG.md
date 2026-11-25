@@ -209,3 +209,78 @@
 - ⚠️ 平台回退只是止血，必须同时 `git revert` 修代码，否则下次 push 会推回坏版本
 
 ---
+## 附录 · iter-2026-11-25-02 改动速查
+
+> 本节是本轮迭代的清单速查，供日后回溯。完整叙述见上文 iter-2026-11-25-02 条目。
+
+### 已修改与新增的文件（8 个）
+
+| 文件 | 动作 | 说明 |
+|---|---|---|
+| `templates/404.html` | **新增** | 404 模板。外壳与 `site.html` 同构，正文静态 |
+| `tools/build.py` | 修改 +10 | 加 404 渲染（仿 `flashcards.html` 先例，不进 `SITE_PAGES`） |
+| `site/ap/404.html` | **新增** | AP 站产物（14 → 15 个文件） |
+| `site/ad/404.html` | **新增** | AD 站产物（14 → 15 个文件） |
+| `docs/DEPLOY.md` | **新增** | 部署实况、CF 内建行为、三级回滚、9 条踩坑 |
+| `README.md` | 修改 | 产物文件数 14 → 15 |
+| `docs/CONTEXT.md` | 修改 | 路由表加 404；文件清单补模板；修正漏改的 `dist/` 旧路径 |
+| `docs/ITERATION-LOG.md` | 修改 | 本条目 |
+
+### 新增功能
+
+| 功能 | 说明 |
+|---|---|
+| **404 错误页** | 错网址返回真 404 + 可读提示，不再静默送回首页 |
+| **Cloudflare Pages 双站部署** | AP / AD 各自独立上线，GitHub 集成自动部署 |
+| **分支预览机制** | `feature/*` 自动出 Preview 地址，改坏不影响生产 |
+| **三级回滚** | 平台回退 / `git revert` / `git checkout tag` |
+| **部署文档** | `docs/DEPLOY.md`，含踩坑记录 |
+
+### 值得注意的地方
+
+**1. 404 模板不能出现学科名**
+`verify_content.py` 的隔离扫描会查 `ap` 站是否含 "Art History"、`ad` 站是否含 "Social Science"。
+同一份模板渲进两个站 → 写死学科名会让另一站直接 FAIL。（HTML 注释也不豁免。）
+
+**2. 文案不能嵌 `<a>` 标签**
+校验器 R10 按**文本节点**逐段判定，嵌标签会把句子拆散，
+「Pick a subject from」这段 wc≥3 但无触发词 → FAIL。
+现用文案：`Start from Overview, or open Courses to pick a subject.`
+
+**3. `site.js` 一行未改**
+`data-view="notfound"` 不命中任何视图分支即天然兼容；site.js 只 `appendChild` 从不清空 `#site-main`，
+静态正文能存活。零 CSS 改动（复用 `.empty` + `.panel`）。
+
+**4. 404 页必须由 `build.py` 生成**
+`build.py` 不清空输出目录。手工投放 `site/ap/404.html` 不会被覆盖，但下次 build 也不会重新生成
+→ 产物脱离真源，违反「`site/` 全部是编译产物」的不变量。
+
+**5. Pages 会把 `.html` 308 剥离**
+`/flashcards.html` → `/flashcards`，但 **query 完整保留**（`?m=xxx` 不丢）。
+⚠️ 下载线上 HTML 必须 `curl -L`，否则拿到空文件。
+
+**6. 没有 `404.html` 时 Cloudflare 假定你是 SPA**
+把拼错的网址送回 `/` 并返回 200。补上 `404.html` 后才返回真 404。
+
+**7. 构建命令留空是对的**
+产物 `site/` 已入库 → Cloudflare 直接发成品，没有「云端构建失败」这个失败点。
+（与 `museum-site` 相反：那个仓库产物不入库，必须填构建脚本。）
+
+### 本轮未做（有意排除）
+
+- ❌ 不配 `_headers`（缓存）—— 默认 `max-age=0` + ETag，回滚才可靠
+- ❌ 不配 `_redirects` —— MPA + query 路由，不需要
+- ❌ 不加 `develop` 分支 —— 实测 `museum-site` 的 develop 建完即废弃（落后 main 8 个提交、独有提交 0 个）；
+  迭代分支已承担隔离职责，CF Preview 已提供验证环境
+- ❌ 不改 `engine.js` / `flashcards.css` 字节、不动 `storeKey` 与章节编号（跨版本契约）
+
+### 版本与回滚
+
+| 项 | 值 |
+|---|---|
+| 提交 | `40a012d`（feature）→ `7f89aa0`（main 合并） |
+| 标签 | `v1.1.0` |
+| 线上 | AP `learning-hub-ap.pages.dev` ｜ AD `learning-hub-ad.pages.dev` |
+| 回滚 | `git revert <sha>` 或 `git checkout v1.0.0` |
+
+---

@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>学习站 · 自检</title>
+<style>
+:root{--canvas:#F7F6F3;--surface:#FFF;--ink:#24231F;--muted:#817B70;--primary:#8C4E3D;--line:#DED9D0;--sage:#D7E5D9;--positive:#6F7F52;--attention:#A85D45}
+*{box-sizing:border-box}
+body{margin:0;padding:34px clamp(18px,5vw,60px);background:var(--canvas);color:var(--ink);
+  font:15px/1.6 "Inter",ui-sans-serif,system-ui,"Microsoft YaHei",sans-serif}
+h1{margin:0 0 6px;font-size:1.5rem}
+p.lead{margin:0 0 26px;color:var(--muted);font-size:.92rem}
+#summary{margin:18px 0;padding:12px 16px;border-radius:10px;background:var(--surface);border:1px solid var(--line);font-weight:700}
+#summary.pass{color:var(--positive);border-color:var(--sage)}
+#summary.fail{color:var(--attention)}
+table{width:100%;border-collapse:collapse;background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+th,td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--line);font-size:.88rem}
+th{background:#F1EFE9;font-weight:700}
+td.st{width:64px;font-weight:700}
+tr:last-child td{border-bottom:0}
+.ok{color:var(--positive)}.no{color:var(--attention)}
+code{background:#F1EFE9;padding:1px 6px;border-radius:4px;font-size:.85em}
+</style>
+</head>
+<body>
+<h1>学习站自检</h1>
+<p class="lead">纯逻辑冒烟测试，不依赖布局。浏览器打开本文件即可运行。</p>
+<div id="summary">运行中…</div>
+<table>
+<thead><tr><th>状态</th><th>检查项</th><th>说明</th></tr></thead>
+<tbody id="rows"></tbody>
+</table>
+
+<script src="../assets/data/ap-science-section1.js"></script>
+<script src="../assets/data/ap-social-science-section1.js"></script>
+<script src="../assets/data/sq-art-history.js"></script>
+<script>
+(function () {
+  'use strict';
+  var rows = [];
+  function check(label, ok, detail) {
+    rows.push({ label: label, ok: !!ok, detail: detail || '' });
+  }
+  function M(id) { return (window.AP_MODULES || {})[id]; }
+
+  // ---- 模块注册表 ----
+  check('三个模块都已注册', !!M('ap-science-section1') && !!M('ap-social-science-section1') && !!M('sq-art-history'), '');
+
+  var sci = M('ap-science-section1');
+  var soc = M('ap-social-science-section1');
+  var sq = M('sq-art-history');
+
+  // ---- 闪卡数据结构 ----
+  check('SCI 题库 39 张', sci.sections[0].levels.reduce(function (n, l) { return n + l.cards.length; }, 0) === 39, '');
+  check('SOC 题库 84 张', soc.sections[0].levels.reduce(function (n, l) { return n + l.cards.length; }, 0) === 84, '');
+  check('SCI 两个章节', sci.sections[0].levels.length === 2, '');
+  check('SOC 四个章节', soc.sections[0].levels.length === 4, '');
+
+  var allTerms = [];
+  sci.sections[0].levels.forEach(function (l) { l.cards.forEach(function (c) { allTerms.push(c.term); }); });
+  soc.sections[0].levels.forEach(function (l) { l.cards.forEach(function (c) { allTerms.push(c.term); }); });
+  var dupTerms = allTerms.filter(function (t, i) { return allTerms.indexOf(t) !== i; });
+  check('两学科 term 无重复（裸 term 作 key 才安全）', dupTerms.length === 0, dupTerms.slice(0, 3).join(', '));
+
+  var noDef = [];
+  [sci, soc].forEach(function (mod) {
+    mod.sections[0].levels.forEach(function (l) {
+      l.cards.forEach(function (c) {
+        if (!c.term || !c.definition) noDef.push(c.term);
+      });
+    });
+  });
+  check('每张卡都有 term 与 definition', noDef.length === 0, noDef.slice(0, 3).join(', '));
+
+  // ---- STORE_KEY 与旧存档兼容 ----
+  check('SCI 存档 key 与原文件一致', sci.storeKey === 'fx_fc_v1:ap-science-section1', sci.storeKey);
+  check('SOC 存档 key 与原文件一致', soc.storeKey === 'fx_fc_v1:ap-social-science-section1', soc.storeKey);
+  check('两个模块存档空间独立', sci.storeKey !== soc.storeKey, '');
+  check('SQ 不写存档', !sq.storeKey, '');
+
+  // ---- SQ 题库 ----
+  check('SQ 题目 5 道', sq.questions.length === 5, '');
+  var badOpt = sq.questions.filter(function (q) { return q.o.length !== 4; });
+  check('SQ 每题 4 个选项', badOpt.length === 0, '');
+  var badAns = sq.questions.filter(function (q) { return q.a < 0 || q.a > 3; });
+  check('SQ 正确项下标合法', badAns.length === 0, '');
+  var withE = sq.questions.filter(function (q) { return q.e; }).length;
+  check('SQ 解析字段保留 3 条', withE === 3, withE + ' 条');
+
+  // ---- 渲染 ----
+  var tbody = document.getElementById('rows');
+  rows.forEach(function (r) {
+    var tr = document.createElement('tr');
+    var st = document.createElement('td');
+    st.className = 'st ' + (r.ok ? 'ok' : 'no');
+    st.textContent = r.ok ? 'PASS' : 'FAIL';
+    var lb = document.createElement('td');
+    lb.textContent = r.label;
+    var dt = document.createElement('td');
+    dt.textContent = r.detail;
+    tr.appendChild(st); tr.appendChild(lb); tr.appendChild(dt);
+    tbody.appendChild(tr);
+  });
+  var failed = rows.filter(function (r) { return !r.ok; }).length;
+  var sum = document.getElementById('summary');
+  sum.textContent = failed ? failed + ' 项未通过' : '全部通过（' + rows.length + ' 项）';
+  sum.className = failed ? 'fail' : 'pass';
+  document.title = (failed ? '[FAIL] ' : '[OK] ') + '学习站自检';
+})();
+</script>
+</body>
+</html>

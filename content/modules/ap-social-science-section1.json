@@ -1,0 +1,371 @@
+{
+  "id": "ap-social-science-section1",
+  "type": "flashcards",
+  "title": "AP Social Science",
+  "subjectLine": "AP Social Science Section 1",
+  "storeKey": "fx_fc_v1:ap-social-science-section1",
+  "sections": [
+    {
+      "num": 1,
+      "label": "Section 1",
+      "levels": [
+        {
+          "id": "1.1",
+          "cards": [
+            {
+              "term": "spatial perspective",
+              "definition": "a perspective geographers use to consider the reasons why particular phenomena occur in particular places"
+            },
+            {
+              "term": "absolute location",
+              "definition": "the precise position of an object or place as determined by spatial coordinates within a grid system"
+            },
+            {
+              "term": "relative location",
+              "definition": "the description of where a place is based on what is nearby"
+            },
+            {
+              "term": "coordinate system",
+              "definition": "a grid made up of latitude and longitude lines, which geographers use to pinpoint the exact location of objects, places, or features on Earth’s surface"
+            },
+            {
+              "term": "latitude",
+              "definition": "parallel lines that demonstrate relative distance north and south of the equator"
+            },
+            {
+              "term": "longitude",
+              "definition": "parallel lines that measure relative distance east and west of the prime meridian"
+            },
+            {
+              "term": "meridian",
+              "definition": "another word for a longitude line"
+            },
+            {
+              "term": "prime meridian",
+              "definition": "an imaginary line that runs through the Royal Observatory in Greenwich, England, and represents the 0° longitude mark"
+            },
+            {
+              "term": "absolute distance",
+              "definition": "a measurable span using standardized units of length, such as miles or kilometers"
+            },
+            {
+              "term": "accessibility",
+              "definition": "how easily one location can be reached from and/or influenced by another"
+            },
+            {
+              "term": "distance decay effect",
+              "definition": "the reduction in interaction between locations as spatial separation grows"
+            },
+            {
+              "term": "time-space compression",
+              "definition": "the phenomenon wherein advances in technology have diminished disparities in relationship intensity across different geographic regions of different distances, resulting in a reduction of the impact that physical distances create"
+            },
+            {
+              "term": "globalization",
+              "definition": "the increasing connections among individuals, ideas, and economies around the world"
+            },
+            {
+              "term": "clustering",
+              "definition": "the close grouping of qualitative or quantitative factors within a location"
+            },
+            {
+              "term": "dispersal",
+              "definition": "the even or random distribution of data across a location"
+            },
+            {
+              "term": "elevation",
+              "definition": "the measurement of how high areas are above sea level; typically shown on topographic and physical maps"
+            },
+            {
+              "term": "place",
+              "definition": "a location that has a specific value and is either shaped by its physical characteristics or by the abstract qualities that humans attribute to it"
+            },
+            {
+              "term": "space",
+              "definition": "the area between places, including how objects are arranged and ordered within it"
+            },
+            {
+              "term": "flow",
+              "definition": "a data pattern that illustrates how people, money, cultural attributes, ideas, technology, and other elements move from one place to another"
+            },
+            {
+              "term": "sense of place",
+              "definition": "the subjective meaning people attach to specific locations that derives from personal and cultural perspectives"
+            }
+          ]
+        },
+        {
+          "id": "1.2",
+          "cards": [
+            {
+              "term": "placelessness",
+              "definition": "a condition describing a place that lacks distinctive features attributed by humans or nature"
+            },
+            {
+              "term": "cartography",
+              "definition": "the discipline and methodology of creating visual representations of the Earth’s surface through maps"
+            },
+            {
+              "term": "reference map",
+              "definition": "a map that provides details about a location to help users identify landmarks and navigate effectively"
+            },
+            {
+              "term": "topographic map",
+              "definition": "a type of reference map that uses isolines to assist navigation"
+            },
+            {
+              "term": "thematic map",
+              "definition": "a map that illustrates variables, like population size or income, across a defined region"
+            },
+            {
+              "term": "choropleth map",
+              "definition": "a map that displays how data varies across locations by using different shades or colors to represent density and/or intensity"
+            },
+            {
+              "term": "dot distribution/dot density map",
+              "definition": "a map that demonstrates data frequency through dot density and locations"
+            },
+            {
+              "term": "isoline map",
+              "definition": "a map that connects points of equal value to show relationships and characteristics across locations"
+            },
+            {
+              "term": "graduated symbol map",
+              "definition": "a map that compares data quantity across an area by contrasting symbols of varied sizes"
+            },
+            {
+              "term": "flowline map",
+              "definition": "a map that includes arrows of different sizes to show movement, direction, and intensity of data across space"
+            },
+            {
+              "term": "cartogram map",
+              "definition": "a map that uses visual distortions imposed on the landscape to demonstrate relative variables"
+            },
+            {
+              "term": "mental map",
+              "definition": "a map of an individual’s internal, subjective perception of their surroundings used to navigate environments without the need for a physical reference"
+            },
+            {
+              "term": "ratio scale",
+              "definition": "the relationship between distance on a map and actual ground distance in terms of a ratio"
+            },
+            {
+              "term": "written scale",
+              "definition": "the written difference between real and portrayed distance units"
+            },
+            {
+              "term": "graphic scale",
+              "definition": "a graphic (usually a bar) divided into segments that correspond to specific distances, such as miles or kilometers"
+            },
+            {
+              "term": "projection",
+              "definition": "the process of transferring geographical locations onto a flat map"
+            },
+            {
+              "term": "Mercator projection",
+              "definition": "a map projection that preserves shape and direction but distorts size near the poles"
+            },
+            {
+              "term": "Peters (Gall-Peters) projection",
+              "definition": "a map projection that shows relative sizes correctly but alters the shapes of landmasses"
+            },
+            {
+              "term": "equal-area projection",
+              "definition": "a map projection that maintains size accuracy while sacrificing shape"
+            },
+            {
+              "term": "Robinson projection",
+              "definition": "a map projection that aims for a balanced compromise among various distortions, offering visually appealing world maps"
+            },
+            {
+              "term": "spatial data",
+              "definition": "physical information about a location attained from references, including maps, satellite images, and GPS coordinates"
+            },
+            {
+              "term": "non-spatial data",
+              "definition": "characteristics of a location like population, income, or land use"
+            }
+          ]
+        },
+        {
+          "id": "1.3",
+          "cards": [
+            {
+              "term": "field data",
+              "definition": "geographic information collected by experts on site, including surveys, photographs, notes, and interview transcripts"
+            },
+            {
+              "term": "Geographic Information System (GIS)",
+              "definition": "technology that superimposes layers of data onto a location to reveal connections and patterns"
+            },
+            {
+              "term": "Global Positioning System (GPS)",
+              "definition": "technology that uses location data to pinpoint an object’s precise position"
+            },
+            {
+              "term": "remote sensing",
+              "definition": "technology that utilizes satellites and aircraft to gather spatial information, enabling the mapping of wide regions, the monitoring of weather changes, and the detailed study of how people interact with their surroundings"
+            },
+            {
+              "term": "quantitative data",
+              "definition": "mathematical and statistical models geographers use to present and analyze locations"
+            },
+            {
+              "term": "qualitative data",
+              "definition": "information that is linked to a human-centered perspective in geography and is typically gathered by interviewing people, making firsthand observations, or analyzing texts, art, historical maps, and various archives"
+            },
+            {
+              "term": "toponym",
+              "definition": "the name identifiers of locations"
+            },
+            {
+              "term": "gerrymandering",
+              "definition": "the deliberate configuration of voting boundaries to favor a particular political party"
+            },
+            {
+              "term": "natural feature",
+              "definition": "characteristics of a location that are shaped by natural processes"
+            },
+            {
+              "term": "human feature",
+              "definition": "a characteristic of a location that is shaped by human processes"
+            },
+            {
+              "term": "cultural landscape",
+              "definition": "a geographic area, including its natural and built environments, shaped by human development and use over time"
+            },
+            {
+              "term": "renewable resource",
+              "definition": "a natural resource that replenishes on its own over time"
+            },
+            {
+              "term": "nonrenewable resource",
+              "definition": "a finite natural resource formed over millions of years, making it non-replenishable"
+            },
+            {
+              "term": "environmental sustainability",
+              "definition": "the protection of ecosystems and the preservation of resources from exploitation and degradation"
+            },
+            {
+              "term": "economic sustainability",
+              "definition": "the preservation of economic growth while preventing resource or system collapse over time"
+            },
+            {
+              "term": "social sustainability",
+              "definition": "the establishment of equity and similar health and well-being outcomes across places"
+            },
+            {
+              "term": "environmental determinism",
+              "definition": "the idea that nature determines which human lifestyles and levels of development are possible"
+            },
+            {
+              "term": "environmental possibilism",
+              "definition": "the idea that while environmental factors such as natural resources and landforms do place limits on human development, humans play a significant role in shaping what is possible"
+            },
+            {
+              "term": "urban sprawl",
+              "definition": "the rapid expansion of cities into rural land"
+            },
+            {
+              "term": "scale of analysis",
+              "definition": "the level at which a geographer investigates or presents a location"
+            },
+            {
+              "term": "formal regions",
+              "definition": "defined by a shared feature that is consistent across the area"
+            },
+            {
+              "term": "functional regions",
+              "definition": "defined by a central node or hub that organizes movement and activity"
+            }
+          ]
+        },
+        {
+          "id": "1.4",
+          "cards": [
+            {
+              "term": "vernacular region",
+              "definition": "a region that is defined by shared cultural perceptions rather than strict boundaries"
+            },
+            {
+              "term": "site",
+              "definition": "a location’s physical characteristics, such as climate, resources, and plant and animal life"
+            },
+            {
+              "term": "situation",
+              "definition": "how a place is connected to other locations, including the importance, strength, and extent of those connections"
+            },
+            {
+              "term": "human geography",
+              "definition": "the study of how human activities vary across different locations"
+            },
+            {
+              "term": "geographic data",
+              "definition": "information about locations that allows geographers to identify patterns and study human-environment interactions"
+            },
+            {
+              "term": "geoid",
+              "definition": "the oblate shape of the Earth, characterized by irregularity and slight flattening at the poles"
+            },
+            {
+              "term": "map scale",
+              "definition": "a scale that expresses the relationship between map size and real-world size using ratios, words, or graphics"
+            },
+            {
+              "term": "scale",
+              "definition": "determines the level of detail a map displays and determines the relationship between distances in its representation and distances in reality"
+            },
+            {
+              "term": "isoline",
+              "definition": "a line that connects areas with the same value; on topographic maps, following an isoline ensures a steady path due to equal values"
+            },
+            {
+              "term": "physical map",
+              "definition": "a map that facilitates navigation by clearly depicting landforms such as mountains, rivers, and deserts"
+            },
+            {
+              "term": "political map",
+              "definition": "a map that helps people navigate by showing boundaries, capital cities, and important urban areas"
+            },
+            {
+              "term": "road map",
+              "definition": "a map that depicts land transportation routes, including streets and highways"
+            },
+            {
+              "term": "direction",
+              "definition": "the orientation between two locations"
+            },
+            {
+              "term": "distance",
+              "definition": "the physical separation between two locations"
+            },
+            {
+              "term": "shape",
+              "definition": "the actual boundaries and forms of locations"
+            },
+            {
+              "term": "size",
+              "definition": "the actual area of locations"
+            },
+            {
+              "term": "local scale",
+              "definition": "a scale of analysis that examines neighborhoods, cities, or districts and can reveal patterns such as income levels or ethnic distribution within a community"
+            },
+            {
+              "term": "regional scale",
+              "definition": "a scale of analysis that examines multiple countries or large portions of a single country"
+            },
+            {
+              "term": "national scale",
+              "definition": "a scale of analysis that examines one country or compares data across regions within that country"
+            },
+            {
+              "term": "global scale",
+              "definition": "a scale of analysis that examines the entire Earth or systems that affect most landscapes, such as pandemic diseases or global economic relationships"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,261 @@
+  :root{
+    --canvas:#F7F6F3;
+    --surface:#FFFFFF;
+    --surface-alt:#F1EFE9;
+    --ink:#24231F;
+    --muted:#817B70;
+    --primary:#8C4E3D;
+    --primary-deep:#6F3C30;
+    --sage:#D7E5D9;
+    --line:#DED9D0;
+    --line-strong:#CBC3B4;
+    --positive:#6F7F52;
+    --attention:#A85D45;
+    --shadow:0 14px 32px rgba(60,48,37,.08);
+  }
+  *{box-sizing:border-box}
+  html,body{width:100%;height:100%;margin:0;overflow:hidden;background:var(--canvas);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+  button{font:inherit;color:inherit;cursor:pointer}
+  .app{height:100dvh;min-height:100svh;overflow:hidden;position:relative}
+  .view{position:absolute;top:0;left:0;right:0;bottom:0;inset:0;display:flex;flex-direction:column;padding:28px clamp(28px,6vw,88px);opacity:0;pointer-events:none;transform:translateY(10px);transition:opacity .42s ease,transform .42s ease}
+  .view.active{opacity:1;pointer-events:auto;transform:none}
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:36px;flex:none}
+  .history{border:0;background:transparent;font-size:.82rem;color:var(--muted);padding:10px 0;letter-spacing:.03em}
+  .history:hover{color:var(--ink)}
+
+  /* ---------- welcome ---------- */
+  .welcome-grid{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-height:0}
+  .welcome-copy{max-width:560px;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%}
+  h1{font-size:clamp(3.4rem,7.5vw,6.4rem);line-height:.92;letter-spacing:-.065em;margin:0;font-weight:780}
+  .start-btn,.next-btn,.reset-btn,.link-btn{border:0;background:var(--primary);color:#fff;border-radius:12px;min-height:48px;padding:0 28px;font-weight:700;letter-spacing:.02em;transition:background .2s ease,transform .2s ease}
+  .start-btn{align-self:center;margin-top:44px;min-width:172px;min-height:56px;font-size:1rem}
+  .start-btn:hover,.next-btn:hover,.reset-btn:hover,.link-btn:hover{background:var(--primary-deep);transform:translateY(-1px)}
+  .link-btn{background:transparent;color:var(--primary);border:1px solid var(--line);font-weight:650;min-height:40px;padding:0 18px;font-size:.82rem}
+  .link-btn:hover{background:var(--surface-alt);color:var(--primary-deep)}
+  .subject-line{margin:16px 0 0;font-size:.95rem;letter-spacing:.05em;font-weight:600;color:var(--muted)}
+  .home-progress{margin-top:26px;font-size:.76rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+
+  /* ---------- chapters ---------- */
+  .levels-header{flex:none;padding-top:26px;padding-bottom:10px;text-align:center}
+  .levels-header h2{font-size:clamp(1.8rem,3vw,2.8rem);letter-spacing:-.045em;font-weight:760;margin:0}
+  .levels-body{flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;justify-content:center;align-items:stretch;gap:20px;padding-bottom:12px}
+  .level-group{display:flex;flex-direction:column;align-items:center;gap:12px;width:100%;max-width:100%}
+  .level-group-label{font-size:.73rem;letter-spacing:.13em;text-transform:uppercase;color:var(--muted)}
+  .level-row{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;width:100%;max-width:100%}
+  .level-btn{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;min-width:124px;min-height:76px;padding:10px 22px;border:1px solid var(--line-strong);border-radius:14px;background:var(--surface);color:var(--ink);box-shadow:0 6px 18px rgba(60,48,37,.09);transition:border-color .2s ease,transform .2s ease}
+  .level-btn:hover{border-color:var(--primary);transform:translateY(-2px)}
+  .level-num{font-size:1.05rem;font-weight:760;letter-spacing:-.01em;line-height:1.2}
+  .level-count{font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  .level-btn.cleared{background:var(--sage);border-color:#B9CCBB;color:var(--primary-deep)}
+  .level-btn.cleared:hover{background:#CBDDCD}
+  .level-btn.cleared::after{content:"";position:absolute;right:10px;top:50%;width:5px;height:10px;margin-top:-7px;border:solid var(--positive);border-width:0 1.5px 1.5px 0;transform:rotate(45deg)}
+  .levels-foot{flex:none;display:flex;align-items:center;justify-content:space-between;gap:16px;padding-top:12px;border-top:1px solid var(--line)}
+  .levels-count{font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+  .level-resume{font-size:.66rem;letter-spacing:.08em;text-transform:uppercase;color:var(--primary);font-weight:650;margin-top:3px}
+  /* 复用 .link-btn 的形状语言（1px 描边 + hover 换底），覆盖 .history 的 border:0/transparent */
+  .back-btn{border:1px solid var(--line-strong);border-radius:10px;padding:8px 16px;font-size:.82rem;font-weight:650;color:var(--ink);transition:color .2s ease,background .2s ease,border-color .2s ease}
+  .back-btn:hover{background:var(--surface-alt);border-color:var(--primary)}
+
+  /* ---------- game ---------- */
+  .game-header{display:flex;align-items:end;justify-content:space-between;gap:24px;flex:none;padding-top:34px;padding-bottom:18px}
+  .game-title-wrap{display:flex;flex-direction:column;gap:7px;min-width:0}
+  .level-stamp{font-size:.72rem;letter-spacing:.13em;text-transform:uppercase;color:var(--primary)}
+  .game-title{font-size:clamp(1.6rem,2.6vw,2.5rem);letter-spacing:-.04em;font-weight:750;margin:0}
+  .stats{display:flex;align-items:center;gap:22px;color:var(--muted);font-size:.79rem;letter-spacing:.04em;white-space:nowrap}
+  .stat strong{color:var(--ink);font-size:.94rem;margin-left:5px}
+  .stat-review{border:0;background:transparent;padding:4px 7px;margin:-4px -7px;border-radius:8px;font-size:inherit;letter-spacing:inherit;cursor:pointer;transition:color .2s ease,background .2s ease}
+  .stat-review:hover{color:var(--ink);background:var(--surface-alt)}
+  .levels-exit{position:absolute;top:18px;right:clamp(22px,6vw,80px);border:1px solid var(--line-strong);border-radius:10px;background:var(--surface);padding:7px 14px;font-size:.79rem;font-weight:650;color:var(--muted);transition:color .2s ease,background .2s ease,border-color .2s ease}
+  .levels-exit:hover{color:var(--ink);background:var(--surface-alt);border-color:var(--primary)}
+  .progress{height:3px;background:#E4E0D8;width:100%;flex:none;position:relative}
+  .progress span{display:block;height:100%;width:0;background:var(--primary);transition:width .35s ease}
+  .game-main{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px 0 10px}
+  .card-wrap{width:min(78vw,720px);height:min(48vh,340px);min-height:238px;perspective:1200px;position:relative}
+  .flashcard{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .62s cubic-bezier(.2,.78,.25,1);border-radius:18px;outline:none}
+  .flashcard.flipped{transform:rotateY(180deg)}
+  .card-face{position:absolute;top:0;left:0;right:0;bottom:0;inset:0;backface-visibility:hidden;border:1px solid var(--line);border-radius:18px;background:var(--surface);display:flex;align-items:center;justify-content:center;padding:clamp(28px,5vw,68px);text-align:center;box-shadow:var(--shadow);overflow:hidden}
+  .card-face p{margin:0;max-width:620px}
+  /* 释义适度放大以符合阅读习惯；上限 1.15rem 是校验第 8 项的硬约束，不要再往上调 */
+  .card-front p{font-size:clamp(1.02rem,1.35vw,1.15rem);line-height:1.75;font-weight:400;color:#3D3A34;
+    max-width:100%;overflow-wrap:anywhere;word-break:normal}
+  /* 超长释义自适应：装不下时按阶梯降字号，绝不溢出卡面 */
+  .card-front.is-long p{font-size:clamp(.88rem,1.1vw,1rem);line-height:1.6}
+  .card-front.is-verylong p{font-size:clamp(.8rem,1vw,.9rem);line-height:1.55}
+  .card-back{transform:rotateY(180deg);background:#FEFDF9}
+  .card-back p{font-size:clamp(1.7rem,3.6vw,3.2rem);line-height:1.1;font-weight:800;letter-spacing:-.045em;overflow-wrap:anywhere}
+  .controls{height:72px;display:flex;align-items:center;justify-content:center;gap:10px;flex:none;position:relative;width:min(78vw,720px)}
+  .prev-btn{position:absolute;left:0;top:50%;transform:translateY(-50%);width:38px;height:38px;border-radius:50%;border:1px solid var(--line-strong);background:var(--surface);display:inline-flex;align-items:center;justify-content:center;transition:background .2s ease,border-color .2s ease,opacity .2s ease}
+  .prev-btn::after{content:'';width:8px;height:8px;border-left:1.6px solid var(--muted);border-bottom:1.6px solid var(--muted);transform:rotate(45deg);margin-left:2px;transition:border-color .2s ease}
+  .prev-btn:hover{border-color:var(--primary);background:var(--surface-alt)}
+  .prev-btn:hover::after{border-color:var(--primary)}
+  .prev-btn[disabled]{opacity:.32;cursor:default}
+  .prev-btn[disabled]:hover{border-color:var(--line-strong);background:var(--surface)}
+  .prev-btn[disabled]:hover::after{border-color:var(--muted)}
+  .state-btn{min-width:116px;height:44px;padding:0 18px;border-radius:12px;border:1px solid var(--line);background:var(--surface-alt);font-size:.84rem;font-weight:650;transition:background .2s ease,border .2s ease,opacity .2s ease,transform .2s ease}
+  .state-btn:hover{background:#E9E5DC;transform:translateY(-1px)}
+  .state-btn.know:hover{border-color:var(--positive);color:var(--positive)}
+  .state-btn.unsure:hover{border-color:#9A7C45;color:#80652F}
+  .state-btn.unknown:hover{border-color:var(--attention);color:var(--attention)}
+  .next-btn{min-width:130px;display:none}
+  .controls.awaiting .state-btn{display:none}
+  .controls.awaiting .next-btn{display:inline-flex;align-items:center;justify-content:center}
+  .footer-note{font-size:.74rem;color:var(--muted);height:24px;flex:none;text-align:center}
+
+  /* ---------- summary ---------- */
+  .summary{align-items:center;justify-content:center;text-align:center}
+  .summary-inner{width:min(620px,90vw);display:flex;flex-direction:column;align-items:center}
+  .summary-kicker{color:var(--muted);font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;margin-bottom:18px}
+  .summary h2{font-size:clamp(2.6rem,5vw,5rem);line-height:.95;letter-spacing:-.06em;margin:0 0 14px}
+  .summary-level{margin-top:14px;font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;color:var(--primary)}
+  .summary-stats{display:flex;gap:clamp(26px,5vw,64px);margin:38px 0 42px}
+  .summary-stat strong{display:block;font-size:2.1rem;letter-spacing:-.05em}
+  .summary-stat span{display:block;color:var(--muted);font-size:.76rem;letter-spacing:.09em;text-transform:uppercase;margin-top:5px}
+  .summary-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:center}
+  .reset-btn{min-width:148px}
+
+
+  /* ---------- back navigation + exit confirm ---------- */
+  body.dialog-locked{overflow:hidden}
+  body.dialog-locked .app{pointer-events:none}
+  .exit-mask{position:fixed;top:0;left:0;right:0;bottom:0;inset:0;z-index:40;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(36,35,31,.46)}
+  .exit-mask[hidden]{display:none}
+  .exit-dialog{width:min(400px,100%);border-radius:16px;background:var(--surface);border:1px solid var(--line);padding:26px 24px 20px;text-align:center;box-shadow:0 22px 48px rgba(60,48,37,.24)}
+  .exit-title{margin:0 0 10px;font-size:1.28rem;font-weight:760;letter-spacing:-.03em}
+  .exit-desc{margin:0 0 22px;color:var(--muted);font-size:.88rem;line-height:1.6}
+  .exit-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+  .exit-btn{min-height:44px;padding:0 20px;border-radius:11px;font-size:.86rem;font-weight:700}
+  .exit-cancel{border:1px solid var(--line-strong);background:var(--surface);color:var(--ink)}
+  .exit-confirm{border:0;background:var(--primary);color:#fff}
+  /* ---------- review ---------- */
+  .review-header{flex:none;width:min(760px,100%);align-self:center;padding:18px 0 6px}
+  .review-title{font-size:clamp(1.6rem,2.8vw,2.4rem);letter-spacing:-.045em;font-weight:760;margin:0}
+  .review-scope{font-size:.72rem;letter-spacing:.13em;text-transform:uppercase;color:var(--primary)}
+  .review-count{margin-top:8px;color:var(--muted);font-size:.76rem;letter-spacing:.09em;text-transform:uppercase}
+  /* flex:1 + min-height:0 + overflow-y:auto 三行缺一不可：
+     .app 与 html/body 都是 overflow:hidden，页面级滚动兜底失效，
+     长列表只能由本容器自己滚动；缺 min-height:0 会被 min-height:auto 顶开撑破 .view */
+  .review-body{flex:1;min-height:0;overflow-y:auto;width:min(760px,100%);align-self:center;display:flex;flex-direction:column;gap:10px;padding:12px 2px 14px}
+  .word-row{display:flex;align-items:flex-start;gap:14px;padding:14px 16px;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
+  .word-row.is-mastered{opacity:.45}
+  .word-main{flex:1;min-width:0}
+  .word-term{font-size:1rem;font-weight:700;letter-spacing:-.02em;line-height:1.35;color:var(--ink);overflow-wrap:anywhere}
+  .word-def{margin-top:6px;font-size:.84rem;line-height:1.6;color:var(--muted);overflow-wrap:anywhere}
+  .word-master{flex:none;border:1px solid var(--line-strong);border-radius:10px;background:transparent;color:var(--muted);font-size:.72rem;font-weight:650;letter-spacing:.04em;padding:7px 12px;white-space:nowrap;transition:color .2s ease,background .2s ease,border-color .2s ease}
+  .word-master:hover{color:var(--positive);border-color:var(--positive);background:var(--surface-alt)}
+  .word-master[disabled]{color:var(--muted);border-color:var(--line);cursor:default}
+  .word-master[disabled]:hover{color:var(--muted);border-color:var(--line);background:transparent}
+  .review-empty{width:min(520px,100%);align-self:center;margin:auto 0;padding:0 12px;text-align:center;color:var(--muted);font-size:.86rem;line-height:1.7}
+
+  @media (max-width:760px){
+    .view{padding:20px 22px}
+    .welcome-grid{gap:0}
+    h1{font-size:clamp(3.1rem,16vw,5rem)}
+    .start-btn{margin-top:32px;min-width:156px;min-height:52px}
+    .home-progress{margin-top:20px}
+    .levels-header{padding-top:20px;padding-bottom:8px}
+    .levels-header h2{font-size:clamp(1.5rem,7vw,2rem)}
+    .levels-body{gap:14px;padding-bottom:8px}
+    .level-row{gap:10px}
+    .level-btn{flex:1 1 calc(50% - 5px);min-width:96px;min-height:64px;padding:9px 14px}
+    .level-num{font-size:1.28rem}
+    .game-header{padding-top:26px;align-items:flex-start;flex-direction:column;gap:12px}
+    .stats{gap:14px;font-size:.7rem}
+    .game-main{padding-top:14px}
+    .card-wrap{width:100%;height:min(49vh,330px)}
+    .card-face{padding:clamp(20px,5vw,32px)}
+    .controls{gap:6px}
+    .state-btn{min-width:0;flex:1;padding:0 8px}
+    .controls{width:100%;padding-left:38px}
+    .prev-btn{width:32px;height:32px}
+    .prev-btn::after{width:7px;height:7px;border-left-width:1.4px;border-bottom-width:1.4px}
+    .footer-note{display:none}
+    .review-header{padding:14px 0 4px}
+    .review-body{gap:8px;padding:10px 2px 12px}
+    .word-row{padding:12px 13px;gap:10px}
+    .word-term{font-size:.95rem}
+    .word-def{font-size:.8rem;line-height:1.55}
+    .word-master{padding:6px 10px;font-size:.68rem}
+    .levels-exit{top:14px;right:22px;padding:6px 11px;font-size:.74rem}
+  }
+  @media (max-height:650px) and (min-width:761px){
+    .view{padding-top:18px;padding-bottom:14px}
+    .game-header{padding-top:20px;padding-bottom:12px}
+    .game-main{padding-top:10px}
+    .card-wrap{height:min(46vh,290px)}
+    .controls{height:62px}
+    .start-btn{margin-top:32px}
+    .levels-header{padding-top:16px;padding-bottom:8px}
+    .levels-body{gap:14px;padding-bottom:8px}
+    .level-btn{min-height:64px}
+    .levels-foot{padding-top:9px}
+    .levels-exit{top:10px}
+    .review-header{padding:12px 0 4px}
+    .review-body{gap:8px;padding:8px 2px 10px}
+  }
+  /* v4 矮屏（横屏手机）适配。
+     740x360 这类视口只命中 max-width:760px，而该断点未重置 .card-wrap 的
+     min-height:238px（基线值大于 49vh 实算值），同时也不命中
+     (max-height:650px) and (min-width:761px)（宽度不足 761），
+     结果三个作答按钮被顶出视口。本断点只认高度、置于 760px 断点之后，
+     与其不冲突：窄竖屏 360x740 高度 740 > 520 不命中，仍走 760px 断点。 */
+  @media (max-height:520px){
+    .view{padding-top:10px;padding-bottom:10px}
+    .game-header{flex-direction:row;align-items:end;gap:16px;padding-top:10px;padding-bottom:8px}
+    .game-main{padding-top:8px;padding-bottom:6px}
+    .card-wrap{height:min(42vh,200px);min-height:0}
+    .controls{height:60px}
+    .footer-note{display:none}
+    .levels-exit{top:8px}
+  }
+  /* v12 章节页矮屏适配（本批新增）。
+     740x360 / 844x390 这类视口下，章节列表比可用高度高：
+     6-7 个章节按钮 + 2 个模块标签放不下，.levels-body 是 overflow:hidden，
+     超出部分被裁掉，第一个按钮还会被 .levels-header 压住 → 点不到。
+     这里把矮屏下的章节页整体压缩：标题缩小、按钮改 3 列、按钮高度降到 46px。
+     实测 740x360：可用高 202px，改后 3 行×46 + 间距 + 标签 = 约 190px，放得下。 */
+  @media (max-height:520px){
+    .levels-header{padding-top:10px;padding-bottom:6px}
+    .levels-header h2{font-size:clamp(1.4rem,6vw,1.9rem)}
+    .levels-foot{padding-top:8px}
+    .levels-count{font-size:.7rem}
+    .levels-body{gap:12px;padding-bottom:6px}
+    .level-group{gap:8px}
+    .level-group-label{font-size:.66rem}
+    .level-row{gap:8px}
+    /* 3 列必须用显式 width，不能用 flex-basis 百分比：
+       百分比按容器宽算，再加 gap 会超过 100% 而回绕成 2 列（实测按钮行数 4 行）。
+       (100% - 2*gap)/3 才是 3 列的确切宽度。 */
+    .level-btn{flex:0 1 auto;width:calc((100% - 16px)/3);min-width:0;min-height:46px;padding:6px 10px;gap:3px}
+    .level-num{font-size:1rem}
+    .level-count{font-size:.62rem}
+    .level-resume{font-size:.58rem;margin-top:2px}
+  }
+
+/* ---- 学习站导航链接（整合时新增） ----
+   非激活视图的 .view 是 opacity:0，链接仍会被读到并抢走点击，
+   所以这里跟随 .view 的 active 状态一起切换可见性。 */
+.view:not(.active) [data-hub-back]{visibility:hidden;pointer-events:none}
+.hub-back-float{
+  position:absolute;top:20px;left:clamp(22px,6vw,80px);z-index:6;
+  display:inline-flex;align-items:center;gap:6px;
+  padding:8px 14px;border:1px solid var(--line-strong);border-radius:10px;
+  background:var(--surface);color:var(--muted);text-decoration:none;
+  font-size:.8rem;font-weight:650;letter-spacing:.03em;
+  transition:color .2s,border-color .2s,background .2s;
+}
+.hub-back-float:hover{color:var(--ink);border-color:var(--primary);background:var(--surface-alt)}
+.hub-back-inline{
+  border:1px solid var(--line-strong);border-radius:10px;padding:8px 16px;
+  background:transparent;color:var(--ink);text-decoration:none;
+  font-size:.82rem;font-weight:650;
+  transition:color .2s,background .2s,border-color .2s;
+}
+.hub-back-inline:hover{background:var(--surface-alt);border-color:var(--primary)}
+.hub-link{
+  display:block;margin-bottom:6px;color:var(--muted);text-decoration:none;
+  font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;transition:color .2s;
+}
+.hub-link:hover{color:var(--primary)}
+@media (max-width:760px){
+  .hub-back-float{top:12px;left:14px;padding:6px 10px;font-size:.74rem}
+}

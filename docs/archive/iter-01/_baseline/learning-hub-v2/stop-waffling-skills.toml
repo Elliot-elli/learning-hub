@@ -1,0 +1,36 @@
+# stop-waffling-skills.toml -- Learning Hub v2 产物的文案约束参数
+# 规则本体在 ~/.workbuddy/skills/stop-waffling-skills/SKILL.md，本文件只放项目参数。
+
+[vars]
+project = "Learning Hub v2"
+lang = "en"
+stack = "Vanilla JS (no build step)"
+audience = "AP and AD students"
+artifact_kind = "all"
+
+# 领域名词表：R10「UI 信息密度」靠它判定「这句有没有实质信息」。
+# 取自 learning-hub-v2 真实代码与 content/manifest.json 字段。
+[glossary]
+terms = ["flashcard", "flashcards", "quiz", "Quiz", "Matching", "MCQ",
+         "Learning Hub", "AP", "AD", "programme", "subject", "subjects",
+         "section", "sections", "chapter", "chapters", "card", "cards",
+         "question", "questions", "option", "answer", "term", "definition",
+         "mastery", "mastered", "review", "progress", "manifest",
+         "section", "countdown", "seconds", "Overview", "Courses",
+         "Assignments", "Reports", "Settings", "resume", "queue", "entry",
+         "dashboard", "sidebar", "term", "cards",
+         # 引擎的既定按钮文案，契约在 assets/js/engine.js
+         "I know", "I don't know", "Not sure"]
+
+[scope]
+include = ["**"]
+exclude = ["node_modules/**", "tools/shots/**",
+           # 游戏资产由游戏生成技能产出，整合层不得改动（见 tools/game-baseline.json）
+           "assets/js/engine.js", "assets/css/flashcards.css",
+           # 编译产物，内容真源在 content/*.json
+           "assets/data/*.js",
+           # 模板含占位符，不是交付文案
+           "tools/templates/**"]
+
+[checks]
+severity = "P0"

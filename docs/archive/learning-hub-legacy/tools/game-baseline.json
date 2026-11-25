@@ -1,0 +1,15 @@
+{
+  "note": "游戏资产基线：这些文件由游戏生成技能产出，学习站整合不得改动。改一个就重算 sha256 并说明原因。",
+  "files": {
+    "assets/engine.js": "232dd4890504cb8c43ac0ef226bc401d6bf7ee35f97fed56720510b024a7a0db",
+    "assets/sq-engine.js": "1f7423c362a4f083e8231d726b81a52b2aad51a6a6185a192d26762be2cb904e",
+    "assets/flashcards.css": "33dc9a2644103ed70c1c42bc59d208d2a0d1a040638b4b59e60571ddfde39df3",
+    "assets/sq.css": "23ee033085bc369d830dea017a5d1ac337ebad9a37320a195469f919aa0f956b",
+    "modules/ap-science-section1.html": "0f30ea5c6415de62e1d467061793cc78c8d943e3d59f3962e7cf5f7965dd9e87",
+    "modules/ap-social-science-section1.html": "bfccd0b98a501a689dc31d6aae1fb80edf2e5e5d74587fad26ae13609a441e40",
+    "modules/sq-art-history.html": "6d48663851d7239558f599be7d4c09d0cbc10f5b75b039e5e7c757442824c6ae",
+    "assets/data/ap-science-section1.js": "d12ede8baa90cccb8ffb95f5618d5df438243e8dd5492c12471d5c65b63a8586",
+    "assets/data/ap-social-science-section1.js": "43681a4a0b7c07d90d1a9ed6c3949a9e81270c9a97afc9bd0da2e50074a1f571",
+    "assets/data/sq-art-history.js": "f271867aac8fc84d64aa8f420284b46f0647bb267f9dbfb1a5f7090c4be70fce"
+  }
+}

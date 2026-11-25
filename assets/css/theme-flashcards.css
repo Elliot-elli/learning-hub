@@ -1,0 +1,117 @@
+/* Theme overlay for the flashcard player.
+   Loaded after flashcards.css so the game matches the dashboard palette
+   without touching the game stylesheet. Only custom properties are
+   redefined; every layout rule in flashcards.css is left untouched. */
+
+:root{
+  --canvas:#EAF4FA;
+  --surface:#FFFFFF;
+  --surface-alt:#F4FAFD;
+  --ink:#12242E;
+  --muted:#7B95A4;
+  --primary:#006674;
+  --primary-deep:#004E58;
+  --sage:#D7F0E4;
+  --line:#D5E6EF;
+  --line-strong:#BCD5E2;
+  --positive:#2F7D57;
+  --attention:#B4573F;
+  --shadow:0 18px 40px rgba(18,36,46,.12);
+
+  /* The game page does not load tokens.css, so the brand and pastel
+     values used below are declared here as well. */
+  --brand:#006674;
+  --brand-deep:#004E58;
+  --brand-soft:#D8FE77;
+  --pastel-cream:#FFF7C9;
+}
+
+/* Progress track and hover states are hardcoded in flashcards.css. */
+.progress{background:#D5E6EF}
+.state-btn:hover{background:#E8F3F9}
+.level-btn.cleared{background:var(--sage);border-color:#A9D8C4;color:var(--primary-deep)}
+.level-btn.cleared:hover{background:#C4E6D3}
+.card-back{background:#F7FCFE}
+.card-front p{color:#3A5766}
+.state-btn.unsure:hover{border-color:#C79A3E;color:#8A6A22}
+
+/* State buttons carry the brand colour so the answer row reads as one
+   control group. Unsure and unknown keep a lighter fill for contrast. */
+.state-btn{border-color:var(--brand);background:var(--brand);color:#fff;font-weight:700}
+.state-btn:hover{background:var(--brand-deep);border-color:var(--brand-deep);transform:translateY(-1px)}
+.state-btn.know:hover{border-color:var(--brand-deep);color:#fff}
+.state-btn.unsure{background:var(--pastel-cream);border-color:#E3BB5B;color:#6B531A}
+.state-btn.unsure:hover{background:#F3E2AE;border-color:#C79A3E;color:#6B531A}
+.state-btn.unknown{background:var(--surface);border-color:var(--line-strong);color:var(--ink)}
+.state-btn.unknown:hover{background:var(--surface-alt);border-color:var(--attention);color:var(--attention)}
+.start-btn,.next-btn,.reset-btn{background:var(--brand)}
+.start-btn:hover,.next-btn:hover,.reset-btn:hover{background:var(--brand-deep)}
+.exit-confirm{background:var(--brand)}
+.exit-confirm:hover{background:var(--brand-deep)}
+
+/* ---------- breadcrumb on the welcome screen ----------
+   The engine centres the welcome copy, so the trail sits above the title
+   as part of that column rather than floating over the card. The
+   separator needs a lighter tone and real spacing, otherwise it shares
+   the colour of the links and reads as one run of text. */
+.crumbs-game{
+  margin-bottom:22px;
+  justify-content:center;
+  gap:7px;
+  font-size:.76rem;
+}
+.crumbs-game .crumb-link{color:var(--muted);font-weight:600;text-decoration:none}
+.crumbs-game .crumb-link:hover{color:var(--primary);text-decoration:none}
+.crumbs-game .crumb-current{color:var(--ink-soft);font-weight:700}
+/* The separator has to read at its real size, not only when magnified.
+   A tone between the link and the background keeps the path legible
+   without competing with the words. */
+.crumbs-game .crumb-sep{color:#9DB3C0;font-weight:700}
+
+/* ---------- back controls ----------
+   Every back control on this page is a shape rather than a label.
+
+   The floating control leaves the game and stays in the same corner in
+   every view. The engine's own buttons step back inside the game and
+   sit in the toolbar. Both live on the left, so the engine's toolbar
+   buttons are pushed clear of the floating one instead of being
+   covered by it. */
+.game-back{
+  position:absolute;top:18px;left:clamp(22px,6vw,80px);z-index:8;
+  display:inline-flex;align-items:center;justify-content:center;
+  width:36px;height:36px;
+  border:1px solid var(--line-strong);border-radius:50%;
+  background:var(--surface);color:var(--muted);text-decoration:none;
+  transition:color .2s ease,border-color .2s ease,transform .2s ease;
+}
+.game-back:hover{color:var(--primary);border-color:var(--primary);transform:translateX(-2px)}
+.game-back svg{width:17px;height:17px}
+
+.back-btn.is-icon,.levels-exit.is-icon{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:36px;height:36px;padding:0;
+  border-radius:50%;
+}
+.back-btn.is-icon svg,.levels-exit.is-icon svg{width:17px;height:17px}
+
+/* The engine keeps its own back button at the left edge of the
+   toolbar, exactly where the floating control sits. Giving the
+   toolbar a left offset moves the engine's button clear of it.
+
+   Only the views with a toolbar need this. The game screen keeps its
+   exit button in the top right corner, where nothing overlaps it. */
+.view .topbar{padding-left:46px}
+
+/* The engine fades a view out with opacity and leaves it in the
+   layout. A faded layer still shows up in a screenshot and can still
+   catch the eye, so the hidden views are taken out of the rendering
+   as well. */
+.view:not(.active){visibility:hidden}
+
+@media (max-width:760px){
+  .crumbs-game{margin-bottom:16px}
+  .game-back{top:12px;left:14px;width:32px;height:32px}
+  .game-back svg{width:15px;height:15px}
+  .view .topbar{padding-left:40px}
+  .view .levels-exit{left:calc(14px + 40px)}
+}

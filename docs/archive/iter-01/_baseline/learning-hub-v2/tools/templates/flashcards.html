@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>@@TITLE@@ Flashcards</title>
+<meta name="description" content="Flashcards for @@TITLE@@ subjects.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%23006674'/%3E%3Cpath d='M16 7l7 9-7 9-7-9z' fill='%23D8FE77'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="../assets/css/flashcards.css">
+<link rel="stylesheet" href="../assets/css/theme-flashcards.css">
+</head>
+<body data-module="" data-programme="@@PROGRAMME@@">
+<div class="app">
+  <section class="view welcome active" id="welcomeView" aria-label="Welcome">
+    <div class="welcome-grid">
+      <div class="welcome-copy">
+        <h1>Flashcards</h1>
+        <h2 class="subject-line" id="subjectLine"></h2>
+        <button class="start-btn" id="startBtn" type="button">Start</button>
+        <div class="home-progress" id="homeProgress"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="view levels" id="levelsView" aria-label="Choose a chapter">
+    <nav class="topbar">
+      <button class="history back-btn" id="levelsBackBtn" type="button">Back</button>
+      <button class="link-btn" id="levelsReviewBtn" type="button">Review list <span id="levelsReviewCount"></span></button>
+    </nav>
+    <header class="levels-header">
+      <h2>Choose a chapter</h2>
+    </header>
+    <div class="levels-body" id="levelsBody"></div>
+    <div class="levels-foot">
+      <span class="levels-count" id="levelsCount"></span>
+    </div>
+  </section>
+
+  <section class="view game" id="gameView" aria-label="Flashcards">
+    <button class="levels-exit" id="levelsExitBtn" type="button" aria-label="Back to chapters">Back</button>
+    <header class="game-header">
+      <div class="game-title-wrap">
+        <div class="level-stamp" id="levelStamp"></div>
+        <h2 class="game-title">Flashcards</h2>
+      </div>
+      <div class="stats" aria-live="polite">
+        <span class="stat">Progress <strong id="progressText">1 / 0</strong></span>
+        <span class="stat">Known <strong id="knownText">0</strong></span>
+        <button class="stat stat-review" id="reviewStatBtn" type="button" aria-label="Review the words marked in this round">Review <strong id="reviewText">0</strong></button>
+      </div>
+    </header>
+    <div class="progress"><span id="progressBar"></span></div>
+    <main class="game-main">
+      <div class="card-wrap" id="cardWrap">
+        <div class="flashcard" id="flashcard" tabindex="0" role="button" aria-label="Flashcard">
+          <div class="card-face card-front"><p id="frontText"></p></div>
+          <div class="card-face card-back"><p id="backText"></p></div>
+        </div>
+      </div>
+      <div class="controls" id="controls">
+        <button class="prev-btn" id="prevBtn" type="button" aria-label="Back to the previous card" title="Back to the previous card" disabled></button>
+        <button class="state-btn know" data-state="known" type="button">I know</button>
+        <button class="state-btn unsure" data-state="uncertain" type="button">Not sure</button>
+        <button class="state-btn unknown" data-state="unknown" type="button">I don't know</button>
+        <button class="next-btn" id="nextBtn" type="button">Next</button>
+      </div>
+      <div class="footer-note" id="footerNote">Choose a state after you reveal the term.</div>
+    </main>
+  </section>
+
+  <section class="view summary" id="summaryView" aria-label="Summary">
+    <div class="summary-inner">
+      <div class="summary-kicker">Round complete</div>
+      <h2>All done.</h2>
+      <div class="summary-level" id="summaryLevel"></div>
+      <div class="summary-stats">
+        <div class="summary-stat"><strong id="summaryKnown">0</strong><span>Known</span></div>
+        <div class="summary-stat"><strong id="summaryReviewed">0</strong><span>Reviewed</span></div>
+      </div>
+      <div class="summary-actions">
+        <button class="reset-btn" id="resetBtn" type="button">Play again</button>
+        <button class="history back-btn" id="summaryLevelsBtn" type="button">Back</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="view review" id="reviewView" aria-label="Review list">
+    <nav class="topbar">
+      <button class="history back-btn" id="reviewBackBtn" type="button">Back</button>
+      <span class="review-scope" id="reviewScope">This round</span>
+    </nav>
+    <header class="review-header">
+      <h2 class="review-title" id="reviewTitle">Review list</h2>
+      <div class="review-count" id="reviewCount" aria-live="polite"></div>
+    </header>
+    <div class="review-body" id="reviewBody" role="list"></div>
+  </section>
+</div>
+<div class="exit-mask" id="exitMask" hidden>
+  <div class="exit-dialog" role="dialog" aria-modal="true" aria-labelledby="exitTitle" aria-describedby="exitDesc">
+    <h2 class="exit-title" id="exitTitle">Leave this chapter?</h2>
+    <p class="exit-desc" id="exitDesc">Your progress in this chapter will be saved so you can continue later.</p>
+    <div class="exit-actions">
+      <button class="exit-btn exit-cancel" id="exitCancelBtn" type="button">Keep going</button>
+      <button class="exit-btn exit-confirm" id="exitConfirmBtn" type="button">Leave</button>
+    </div>
+  </div>
+</div>
+<script src="../assets/data/@@PROGRAMME@@.modules.js"></script>
+<script src="../assets/js/engine.js"></script>
+<script src="../assets/js/player.js"></script>
+</body>
+</html>

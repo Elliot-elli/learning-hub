@@ -1,0 +1,67 @@
+// 题库数据（由 tools/extract.py 从源文件逐字抽取）
+// term / definition 未做任何改写，源文件里的标点与引号保持原样
+window.AP_MODULES = window.AP_MODULES || {};
+window.AP_MODULES['ap-science-section1'] = {
+  id: 'ap-science-section1',
+  type: 'flashcards',
+  title: 'AP Science',
+  subjectLine: 'AP Science Section 1',
+  storeKey: 'fx_fc_v1:ap-science-section1',
+  sections: [
+    {
+      num: 1,
+      label: 'Section 1',
+      levels: [
+        {
+          id: '1.1',
+          cards: [
+            { term: 'Animal', definition: 'a living organism that meets these three criteria: feeds on organic matter; is able to move from one place to another; and is made up of multiple eukaryotic cells and can produce collagen' },
+            { term: 'Mammals', definition: 'animals that have a spinal cord, brain, hair, and three middle ear bones and produce milk' },
+            { term: 'Spinal cord', definition: 'Part of the central nervous system, it is the bundle of nerves originating from the brain that allows for quick behavioral responses and reflexive behavior.' },
+            { term: 'Viviparous', definition: 'describes animals that develop their young internally, giving birth to live young instead of eggs; fertilization occurs only internally' },
+            { term: 'Oviparous', definition: 'describes animals that lay eggs wherein their young develop further and from which they eventually hatch' },
+            { term: 'Ovoviviparous', definition: 'describes animals that internally develop their young in eggs before they hatch and give birth to live young' },
+            { term: 'Arthropods', definition: 'members of the largest phylum in the animal kingdom; includes all insects and arachnids; all arthropods have an open circulatory system, no spinal cord, and an external skeletal system called an exoskeleton.' },
+            { term: 'Behavior', definition: 'all the ways in which animals interact with other organisms, internal stimuli, and the physical environment' },
+            { term: 'External stimuli', definition: 'sensory information that comes from outside of the body' },
+            { term: 'Internal stimuli', definition: 'sensory information that comes from inside of the body' },
+            { term: 'Population', definition: 'all the organisms of the same species in an area' },
+            { term: 'Community', definition: 'a group of multiple different populations that all exist in an area' },
+            { term: 'Ecosystem', definition: 'a group of multiple communities, including the environment and plants and all interactions between them' },
+            { term: 'Biome', definition: 'a large area encompassing multiple ecosystems that share common environmental conditions' },
+            { term: 'Biosphere', definition: 'the collection of all environments found on Earth' },
+            { term: 'Keystone species', definition: 'a species that has a vital role in the ecosystem and is necessary for multiple species to exist' },
+            { term: 'Taxonomy', definition: 'the field of research that seeks to systematically classify organisms with a universally used name and category that gives descriptive information about the organism’s relation to other living things' },
+            { term: 'Binomial name', definition: 'also known as a taxonomic name; the specific name created in Latin for a species or animal that includes information about its believed relationship with other animals' },
+            { term: 'Phylogenetic trees', definition: 'a visual representation of the evolutionary history of how animals are related to one another' },
+            { term: 'Branch', definition: 'a line on a phylogenetic tree that represents one group of animals or an individual, depending on the type of phylogenetic tree' },
+          ]
+        },
+        {
+          id: '1.2',
+          cards: [
+            { term: 'Internal node', definition: 'the point at which two branches meet on a phylogenetic tree, representing the last ancestor shared between the two groups of animals represented by the branches' },
+            { term: 'Divergence event', definition: 'the point at which two species can no longer breed together due to their genetics becoming too different, and they develop into two separate new species' },
+            { term: 'Evolution', definition: 'the total change in a population of organisms over time, including physical and behavioral traits' },
+            { term: 'Fitness', definition: 'how successful an individual organism is relative to others at reproducing and passing on its genetic information' },
+            { term: 'Traits', definition: 'a specific, observable characteristic of an organism that can be determined by genes, the environment, or both' },
+            { term: 'Natural selection', definition: 'the process that drives the evolution of physical or behavioral traits over generations' },
+            { term: 'Selective pressure', definition: 'the factors that affect which traits are inherited in a population; positive selection pressures add new traits to the population, and negative pressures remove traits.' },
+            { term: 'Kin selection', definition: 'a theory of natural selection that explains why behaviors, like the tendency to help genetically related relatives, persist in some species despite being costly to the individual' },
+            { term: 'Ethology', definition: 'the science and study of animal behavior' },
+            { term: 'Imprinting', definition: 'a type of learning where an animal develops a specific behavioral response to a stimulus necessary for survival at a critical timepoint early in development; if the stimulus is not present during the critical period, the animal will never learn the behavior.' },
+            { term: 'Innate (instinctual) behaviors', definition: 'behaviors that animals are born knowing how to do that do not require learning' },
+            { term: 'Anthropomorphism', definition: 'the human tendency to use human characteristics to explain the behavior or intentions of animals without scientific evidence' },
+            { term: 'Observational study', definition: 'a noninvasive way to study the behavior of animals in their natural environment by observing and recording their behavior from a distance' },
+            { term: 'Control group', definition: 'the group of animals in an experiment that does not experience any direct manipulation during a research study; the control group is used to compare what effect the manipulation or treatment has on a behavior.' },
+            { term: 'Ethogram', definition: 'a description of behaviors observed in an animal; used by researchers to objectively record behaviors' },
+            { term: 'Inter-rater reliability', definition: 'a statistical method of testing how consistent two or more independent observers are in evaluating the same behaviors' },
+            { term: 'Machine learning', definition: 'the subset of artificial intelligence (AI) focused on algorithms that can “learn” the patterns of training data and, subsequently, make accurate inferences about new data' },
+            { term: 'Collagen', definition: 'a type of protein produced by some eukaryotic cells that provides structure to the cells' },
+            { term: 'Eukaryotic cell', definition: 'a type of cell that is surrounded by a membrane and has internal organelles that are also surrounded by a membrane' },
+          ]
+        },
+      ]
+    },
+  ]
+};

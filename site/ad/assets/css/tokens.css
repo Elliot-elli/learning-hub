@@ -1,0 +1,57 @@
+/* Learning Hub v2 -- design tokens.
+   Palette sampled from the reference dashboard: light blue canvas, white
+   cards, pastel module tiles, teal brand mark. */
+
+:root{
+  --canvas:#EAF4FA;
+  --surface:#FFFFFF;
+  --surface-alt:#F4FAFD;
+  --surface-sunk:#DCEBF4;
+
+  --ink:#12242E;
+  --ink-soft:#3A5766;
+  --muted:#7B95A4;
+
+  --brand:#006674;
+  --brand-deep:#004E58;
+  --brand-soft:#D8FE77;
+
+  --pastel-lilac:#D3D6FF;
+  --pastel-sky:#BBE8FD;
+  --pastel-blush:#FFD4FF;
+  --pastel-cream:#FFF7C9;
+  --pastel-mint:#D7F0E4;
+
+  --amber:#E3BB5B;
+  --green:#60A91C;
+  --rose:#D9736A;
+
+  --line:#D5E6EF;
+  --line-strong:#BCD5E2;
+
+  --shadow-card:0 10px 30px rgba(18,36,46,.07);
+  --shadow-pop:0 18px 44px rgba(18,36,46,.14);
+
+  --radius-sm:10px;
+  --radius-md:14px;
+  --radius-lg:20px;
+  --radius-xl:26px;
+
+  --sidebar-w:236px;
+  --gutter:clamp(18px,3.4vw,34px);
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--canvas);
+  color:var(--ink);
+  font:16px/1.6 "Inter",ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+button{font:inherit;color:inherit;cursor:pointer}
+a{color:var(--brand-deep);text-decoration:none}
+a:hover{text-decoration:underline}
+img{max-width:100%;display:block}
+:focus-visible{outline:3px solid var(--brand);outline-offset:2px}
+[hidden]{display:none!important}

@@ -1,0 +1,7 @@
+{
+  "note": "游戏资产基线：这些文件由游戏生成技能产出，学习站整合不得改动。改一个就重算 sha256 并说明原因。",
+  "files": {
+    "assets/js/engine.js": "232dd4890504cb8c43ac0ef226bc401d6bf7ee35f97fed56720510b024a7a0db",
+    "assets/css/flashcards.css": "33dc9a2644103ed70c1c42bc59d208d2a0d1a040638b4b59e60571ddfde39df3"
+  }
+}

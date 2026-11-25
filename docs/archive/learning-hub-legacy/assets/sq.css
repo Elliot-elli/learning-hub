@@ -1,0 +1,141 @@
+:root{
+  /* ---- 站点标准令牌（唯一真源，与闪卡一致） ---- */
+  --canvas:#F7F6F3; --surface:#FFFFFF; --surface-alt:#F1EFE9;
+  --ink:#24231F; --muted:#817B70; --primary:#8C4E3D; --primary-deep:#6F3C30;
+  --sage:#D7E5D9; --line:#DED9D0; --line-strong:#CBC3B4;
+  --positive:#6F7F52; --attention:#A85D45;
+  --success-soft:#E7F1E9; --error-soft:#F6E7E5;
+  --shadow:0 14px 32px rgba(60,48,37,.08);
+  /* ---- SQ 兼容别名：SQ 的变量名接到标准令牌，SQ 的规则一行不用改 ---- */
+  --paper:var(--canvas);
+  --card:var(--surface);
+  --accent:var(--primary);
+  --accent-strong:var(--primary-deep);
+  --subject-soft:var(--sage);
+  --success:var(--positive);
+  --error:var(--attention);
+  /* 选项字母徽章四色：取站点柔和底色，保持站点调性 */
+  --pastel-blue:var(--surface-alt);
+  --pastel-green:var(--sage);
+  --pastel-lilac:#E9E5DC;
+  --pastel-blush:#E4E0D8;
+}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--paper);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button{font:inherit}
+.app{height:100dvh;min-height:100vh;overflow:hidden}
+.view{height:100%;width:100%;display:none;overflow:hidden}
+.view.active{display:block;animation:fadeIn .38s ease both}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+.nav{height:clamp(58px,9vh,82px);display:flex;align-items:center;justify-content:space-between;padding:0 clamp(24px,6vw,92px);font-size:.86rem;letter-spacing:.02em}
+.nav-btn{background:var(--card);border:1px solid var(--line);color:var(--muted);cursor:pointer;font-size:.82rem;letter-spacing:.02em;padding:8px 16px;border-radius:999px;transition:color .2s,border-color .2s}
+.nav-btn:hover{color:var(--ink);border-color:var(--accent)}
+/* welcome：居中单列，大标题 + Start + 页脚题数；纸粉底 + 两枚柔色圆做层次 */
+.welcome-grid{position:relative;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 clamp(24px,9vw,140px) clamp(28px,5vh,62px);overflow:hidden}
+.welcome-grid::before,.welcome-grid::after{content:"";position:absolute;border-radius:50%;z-index:0}
+.welcome-grid::before{width:min(44vw,400px);height:min(44vw,400px);background:var(--pastel-blue);opacity:.5;left:-9%;top:-14%}
+.welcome-grid::after{width:min(32vw,290px);height:min(32vw,290px);background:var(--subject-soft);opacity:.55;right:-7%;bottom:-11%}
+.welcome-copy{position:relative;z-index:1;width:100%;max-width:620px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+h1{font-size:clamp(3rem,7vw,5.8rem);line-height:.94;letter-spacing:-.065em;margin:0;font-weight:800;text-align:center}
+.start-btn{align-self:center;margin-top:clamp(28px,4.4vh,44px);min-width:172px;min-height:56px;font-size:1rem}
+.home-progress{margin-top:clamp(16px,2.6vh,24px);font-size:.76rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.home-progress strong{color:var(--accent);font-weight:750}
+.primary-btn{border:0;background:var(--accent);color:white;border-radius:14px;min-width:124px;min-height:48px;padding:13px 24px;cursor:pointer;font-weight:700;transition:background .2s,transform .2s}
+.primary-btn:hover{background:var(--accent-strong);transform:translateY(-2px)}
+.primary-btn:active{transform:translateY(0) scale(.97)}
+.primary-btn:focus-visible,.timer-btn:focus-visible,.secondary-btn:focus-visible,.nav-btn:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.game-layout{height:100%;display:flex;flex-direction:column;padding:0 clamp(24px,7vw,110px)}
+.game-nav{padding-left:0;padding-right:0}.stats{display:flex;gap:24px;color:var(--muted);font-size:.8rem}.stats strong{color:var(--accent);font-weight:750}
+/* 主卡片：白底 + 大圆角 + 柔影，答题内容全部收在这一张里 */
+.game-shell{width:min(880px,100%);margin:auto;min-height:0;background:var(--card);border-radius:28px;padding:20px clamp(18px,3.2vw,30px) 18px;box-shadow:0 12px 32px rgba(63,45,38,.07)}
+.progress-track{height:4px;background:var(--line);border-radius:99px;margin-bottom:14px}.progress-fill{height:100%;background:var(--accent);border-radius:inherit;transition:width .35s ease}
+.question-label{display:inline-block;align-self:flex-start;background:var(--subject-soft);color:var(--ink);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;padding:4px 11px;border-radius:999px;margin-bottom:10px}
+/* 倒计时：题目上方的长条，宽度按剩余比例收缩（rAF 每帧写值） */
+.timer{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.timer-bar{flex:1 1 180px;min-width:150px;height:12px;border-radius:999px;background:var(--subject-soft);overflow:hidden;transition:background .2s}
+.timer-fill{height:100%;width:100%;border-radius:inherit;background:var(--accent)}
+.timer-meta{display:flex;align-items:baseline;gap:7px;min-width:0}
+.timer-num{font-size:1rem;font-weight:750;color:var(--accent);line-height:1}
+.timer-cap{font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);line-height:1;white-space:nowrap;padding:3px 9px;border-radius:999px;transition:background .2s}
+.timer-btn{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;min-height:40px;padding:9px 16px;cursor:pointer;font-size:.86rem;font-weight:700;transition:border-color .2s,background .2s,transform .2s}
+.timer-btn:hover:not(:disabled){border-color:var(--accent)}
+.timer-btn:active:not(:disabled){transform:scale(.97)}
+.timer-btn:disabled{opacity:.5;cursor:default}
+/* 归零：轨道整条转红 —— 填充此时宽度为 0，画不出任何像素，颜色必须给轨道 */
+.timer.is-running .timer-num{color:var(--accent-strong)}
+.timer.is-done .timer-bar{background:var(--error)}
+.timer.is-done .timer-num{color:var(--error)}
+.timer.is-done .timer-cap{color:var(--error);background:var(--error-soft)}
+.question{font-size:clamp(1.2rem,2.1vw,1.4rem);line-height:1.42;font-weight:750;max-width:720px;margin:0 0 14px}
+.options{display:grid;gap:8px}
+.option{position:relative;display:flex;align-items:center;gap:14px;border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:18px;padding:13px 18px;min-height:52px;text-align:left;font-size:clamp(.95rem,1.35vw,1.02rem);box-shadow:0 2px 8px rgba(63,45,38,.04)}
+.option-key{width:28px;height:28px;display:grid;place-items:center;border-radius:50%;font-size:.78rem;font-weight:750;color:var(--ink);flex:none}
+/* 四个选项各一枚马卡龙字母徽章，帮助低龄学生快速定位 A/B/C/D */
+.options .option:nth-child(1) .option-key{background:var(--pastel-blue)}
+.options .option:nth-child(2) .option-key{background:var(--pastel-green)}
+.options .option:nth-child(3) .option-key{background:var(--pastel-lilac)}
+.options .option:nth-child(4) .option-key{background:var(--pastel-blush)}
+.option.is-answer{border-color:var(--success);background:var(--success-soft);padding-right:106px;box-shadow:0 2px 10px rgba(63,115,85,.10)}
+.options .option.is-answer .option-key{background:var(--success);color:#fff}
+.answer-mark{position:absolute;right:18px;top:50%;margin-top:-5.5px;display:flex;align-items:center;gap:7px;color:var(--success)}
+.answer-tick{width:6px;height:11px;border:solid var(--success);border-width:0 1.8px 1.8px 0;transform:rotate(45deg)}
+.answer-tag{font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;font-weight:700}
+.quiz-bar{display:flex;align-items:center;justify-content:space-between;gap:20px;min-height:48px;margin-top:12px}
+.quiz-nav{display:flex;align-items:center;gap:9px;width:100%;justify-content:space-between}
+.prev-btn{border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:14px;min-height:46px;padding:9px 18px;cursor:pointer;font-size:.85rem;font-weight:700;transition:color .2s,border-color .2s,background .2s}
+.prev-btn:hover:not(:disabled){color:var(--ink);border-color:var(--accent);background:var(--card)}
+.prev-btn:active:not(:disabled){transform:scale(.97)}
+.prev-btn:disabled{opacity:.38;cursor:default}
+.next-btn{min-width:112px}
+/* Next 在倒计时结束前锁定：置灰 + 不可点击（防误触） */
+.next-btn:disabled{background:var(--line);color:var(--muted);cursor:default;transform:none}
+/* Exit 确认：固定定位的居中弹层，独立于页面流，不会贴底或被裁切 */
+.exit-veil{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:24px;z-index:20}
+.exit-veil.show{display:flex}
+.exit-bar{width:min(430px,100%);max-height:calc(100dvh - 48px);overflow-y:auto;flex-direction:column;align-items:stretch;gap:20px;background:var(--card);border:1px solid var(--line);border-radius:24px;padding:26px 26px 24px;box-shadow:0 18px 40px rgba(63,45,38,.13)}
+.exit-note{font-size:.88rem;color:var(--muted);line-height:1.55}
+.exit-note strong{display:block;color:var(--ink);font-size:1.05rem;font-weight:750;margin-bottom:7px}
+.exit-actions{display:flex;gap:10px;flex:none}
+.exit-actions .primary-btn,.exit-actions .secondary-btn{min-width:0;min-height:44px;padding:10px 18px;font-size:.92rem}
+.secondary-btn{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:14px;min-height:48px;padding:12px 20px;cursor:pointer;font-weight:700;transition:border-color .2s,background .2s,transform .2s}
+.secondary-btn:hover{border-color:var(--accent);background:var(--card)}
+.secondary-btn:active{transform:scale(.97)}
+.result-layout{height:100%;display:grid;place-items:center;padding:24px}
+.result-card{width:min(520px,100%);text-align:center;background:var(--card);border-radius:28px;padding:clamp(28px,5vh,44px) clamp(22px,4vw,40px);box-shadow:0 12px 32px rgba(63,45,38,.07)}
+.result-kicker{display:inline-block;background:var(--subject-soft);color:var(--ink);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;font-weight:700;padding:5px 13px;border-radius:999px}
+.result-card h2{font-size:clamp(2.4rem,5.4vw,4.4rem);letter-spacing:-.06em;margin:16px 0 8px;line-height:1}
+.result-card p{color:var(--muted);margin:0 0 28px}
+.done-ring{width:112px;height:112px;border-radius:50%;background:var(--pastel-lilac);display:grid;place-items:center;margin:0 auto 20px;animation:pop .4s cubic-bezier(.2,.9,.3,1) both}
+.done-ring::after{content:"";width:22px;height:38px;margin-top:-8px;border:solid var(--accent);border-width:0 4px 4px 0;transform:rotate(45deg)}
+@keyframes pop{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+.result-actions{display:flex;justify-content:center;gap:12px}
+@media (max-width:760px){.welcome-grid{padding-top:18px}.welcome-copy{max-width:none}h1{font-size:clamp(2.6rem,13vw,4.4rem)}.start-btn{min-width:150px;min-height:52px;margin-top:26px}.home-progress{margin-top:16px}.game-nav{height:70px}.stats{gap:12px}.game-shell{border-radius:24px;padding:16px 14px 14px}.question-label{margin-bottom:9px}.timer{gap:10px;margin-bottom:12px}.timer-bar{flex:1 1 100%;min-width:0}.option{padding:11px 40px 11px 14px;min-height:48px;border-radius:16px}.option.is-answer{padding-right:100px}.quiz-bar{gap:12px}.next-btn{flex:1}.exit-bar{padding:22px 20px 20px;gap:18px;border-radius:20px}.exit-actions .primary-btn,.exit-actions .secondary-btn{flex:1}}
+@media (max-height:700px) and (min-width:761px){.welcome-grid{padding-bottom:20px}.start-btn{margin-top:22px}.question{margin-bottom:11px}.options{gap:7px}.option{min-height:46px}.quiz-bar{margin-top:9px}.done-ring{width:92px;height:92px;margin-bottom:14px}.result-card h2{font-size:clamp(2rem,4.4vw,3.4rem)}}
+/* ---- 学习站导航（整合时新增） ---- */
+.view{position:relative}
+.sq-nav-left{display:flex;align-items:center;gap:14px}.sq-hub-float{
+  position:absolute;top:16px;left:clamp(18px,6vw,80px);z-index:6;
+  display:inline-flex;align-items:center;gap:6px;
+  padding:8px 13px;border:1px solid var(--line);border-radius:10px;
+  background:var(--card);color:var(--muted);text-decoration:none;
+  font-size:.8rem;font-weight:650;transition:color .2s,border-color .2s;
+}
+.sq-hub-float:hover{color:var(--ink);border-color:var(--accent)}
+.sq-hub-inline{
+  font-size:.82rem;letter-spacing:.02em;color:var(--muted);text-decoration:none;
+  border:1px solid var(--line);border-radius:11px;padding:9px 14px;font-weight:700;
+  transition:color .2s,border-color .2s,background .2s;
+}
+.sq-hub-inline:hover{color:var(--ink);border-color:var(--accent);background:var(--card)}
+.sq-btn-secondary{
+  border:1px solid var(--line);background:transparent;color:var(--ink);
+  border-radius:12px;min-height:48px;padding:12px 20px;cursor:pointer;font-weight:700;
+  text-decoration:none;display:inline-flex;align-items:center;justify-content:center;
+}
+.sq-btn-secondary:hover{background:var(--card)}
+@media (max-width:760px){
+  .sq-hub-float{top:12px;left:14px;padding:6px 10px;font-size:.74rem}
+}

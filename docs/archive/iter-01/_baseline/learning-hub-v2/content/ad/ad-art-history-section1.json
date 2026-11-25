@@ -1,0 +1,100 @@
+{
+  "id": "ad-art-history-section1",
+  "type": "flashcards",
+  "title": "Art History",
+  "subjectLine": "AD Art History Section 1",
+  "storeKey": "fx_fc_v1:ad-art-history-section1",
+  "sections": [
+    {
+      "num": 1,
+      "label": "Section 1",
+      "levels": [
+        {
+          "id": "1.1",
+          "cards": [
+            {
+              "term": "studying the social setting of art",
+              "definition": "Art history is primarily concerned with Art history reads artworks as evidence of the society that produced them.",
+              "source": {
+                "type": "multiple-choice",
+                "question": "Art history is primarily concerned with",
+                "options": [
+                  "making art look attractive",
+                  "studying the social setting of art",
+                  "selling art to collectors",
+                  "preserving old buildings"
+                ],
+                "answerIndex": 1,
+                "explanation": "Art history reads artworks as evidence of the society that produced them."
+              }
+            },
+            {
+              "term": "art in its original time",
+              "definition": "A basic goal of art history is to understand History asks what an artwork meant when it was first made.",
+              "source": {
+                "type": "multiple-choice",
+                "question": "A basic goal of art history is to understand",
+                "options": [
+                  "art prices in galleries",
+                  "how to copy styles exactly",
+                  "art in its original time",
+                  "museum display choices"
+                ],
+                "answerIndex": 2,
+                "explanation": "History asks what an artwork meant when it was first made."
+              }
+            },
+            {
+              "term": "anthropology, history, and sociology",
+              "definition": "Art history is closely related to which of the following?",
+              "source": {
+                "type": "multiple-choice",
+                "question": "Art history is closely related to which of the following?",
+                "options": [
+                  "chemistry and physics",
+                  "anthropology, history, and sociology",
+                  "engineering and medicine",
+                  "math and coding"
+                ],
+                "answerIndex": 1,
+                "explanation": ""
+              }
+            },
+            {
+              "term": "philosophy of beauty",
+              "definition": "Aesthetics MOST clearly means the Aesthetics is the branch of philosophy dealing with beauty.",
+              "source": {
+                "type": "multiple-choice",
+                "question": "Aesthetics MOST clearly means the",
+                "options": [
+                  "study of museum rules",
+                  "study of color theory",
+                  "market value of art",
+                  "philosophy of beauty"
+                ],
+                "answerIndex": 3,
+                "explanation": "Aesthetics is the branch of philosophy dealing with beauty."
+              }
+            },
+            {
+              "term": "explain art news to the public",
+              "definition": "Art critics mainly",
+              "source": {
+                "type": "multiple-choice",
+                "question": "Art critics mainly",
+                "options": [
+                  "repair damaged artworks",
+                  "explain art news to the public",
+                  "appraise art for buyers",
+                  "teach art studio classes"
+                ],
+                "answerIndex": 1,
+                "explanation": ""
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

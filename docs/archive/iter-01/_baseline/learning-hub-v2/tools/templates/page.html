@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>@@TITLE@@ — Learning Hub</title>
+<meta name="description" content="@@DESC@@">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%23006674'/%3E%3Cpath d='M16 7l7 9-7 9-7-9z' fill='%23D8FE77'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="@@ROOT@@assets/css/tokens.css">
+<link rel="stylesheet" href="@@ROOT@@assets/css/shell.css">
+</head>
+<body data-programme="@@PROGRAMME@@">
+<div class="shell">
+  <aside class="sidebar" id="sidebar">
+    <a class="brand" href="@@HOME@@">
+      <span class="brand-mark" aria-hidden="true">◆</span>
+      <span class="brand-text">
+        <span class="brand-name">Learning</span>
+        <span class="brand-sub">@@SHORT@@</span>
+      </span>
+    </a>
+    <nav class="nav" id="hub-nav" aria-label="Main"></nav>
+    <div class="sidebar-foot">
+      <div class="storage-note">
+        <strong>Progress saved on this device</strong>
+        <div class="storage-bar"><span id="storage-fill" style="width:0%"></span></div>
+        <span id="storage-note-text">Progress stays in this browser.</span>
+      </div>
+      <a class="side-link" href="@@HOME@@">
+        <span aria-hidden="true">←</span>
+        <span>@@BACKLINK@@</span>
+      </a>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <button class="nav-toggle" id="nav-toggle" type="button" aria-label="Open menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+      <div class="greet">
+        <h1 id="greeting">Learning Hub</h1>
+        <p id="page-sub">Pick a subject, then a section.</p>
+      </div>
+      <div class="topbar-tools">
+        <label class="search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <input id="hub-search" type="search" placeholder="Search courses" aria-label="Search courses">
+        </label>
+        <button class="icon-btn" id="hub-bell" type="button" aria-label="Notifications">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 9a6 6 0 1 0-12 0c0 5-2 6-2 6h16s-2-1-2-6Z"/><path d="M10.5 20a2 2 0 0 0 3 0"/></svg>
+        </button>
+      </div>
+    </header>
+    <main id="hub-main" tabindex="-1"></main>
+  </div>
+</div>
+<div class="scrim" id="scrim" hidden></div>
+<div class="toast" id="toast" hidden></div>
+<script src="@@ROOT@@assets/data/@@DATA@@.js"></script>
+<script src="@@ROOT@@assets/js/hub.js"></script>
+</body>
+</html>

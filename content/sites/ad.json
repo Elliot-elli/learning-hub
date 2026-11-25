@@ -1,0 +1,21 @@
+{
+  "id": "ad",
+  "name": "AD Learning Hub",
+  "brand": "AD",
+  "tagline": "Art History flashcards.",
+  "description": "Flashcards for AD subjects.",
+  "subjects": [
+    {
+      "id": "art-history",
+      "title": "Art History",
+      "description": "Art history aims and related fields.",
+      "sections": [
+        {
+          "id": "art-history-section1",
+          "title": "Section 1",
+          "module": "ad-art-history-section1"
+        }
+      ]
+    }
+  ]
+}

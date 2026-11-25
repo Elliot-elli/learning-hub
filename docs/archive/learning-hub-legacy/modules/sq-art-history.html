@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Learning Lab — Art history</title>
+<link rel="stylesheet" href="../assets/sq.css">
+</head>
+<body data-module="sq-art-history">
+<div class="app">
+
+  <section id="welcomeView" class="view active" aria-label="Welcome">
+    <div class="welcome-grid">
+      <a class="sq-hub-float" href="../index.html" data-hub-back>← Learning Hub</a>
+    <div class="welcome-copy">
+        <h1>Super Quiz</h1>
+        <button id="startBtn" class="primary-btn start-btn" type="button">Start</button>
+        <div class="home-progress"><strong id="welcomeCount">5</strong> questions</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="gameView" class="view" aria-label="Super Quiz">
+    <div class="game-layout">
+      <nav class="nav game-nav">
+        <div class="sq-nav-left">
+          <button id="quitBtn" class="nav-btn" type="button">Exit</button>
+          <a class="sq-hub-inline" href="../index.html" data-hub-back>Hub</a>
+        </div>
+        <div class="stats"><span>Question <strong id="topProgress">1 / 5</strong></span></div>
+      </nav>
+      <main class="game-shell">
+        <div class="progress-track"><div id="progressFill" class="progress-fill" style="width:20%"></div></div>
+        <div class="question-label">Art history</div>
+        <div id="timer" class="timer">
+          <div id="timerBar" class="timer-bar" role="progressbar" aria-label="Time remaining" aria-valuemin="0" aria-valuemax="10" aria-valuenow="10">
+            <div id="timerFill" class="timer-fill"></div>
+          </div>
+          <div class="timer-meta">
+            <span class="timer-num" id="timerNum" aria-live="off">10</span>
+            <span class="timer-cap" id="timerCap">Seconds</span>
+          </div>
+          <button id="timerBtn" class="timer-btn" type="button">Start timer</button>
+        </div>
+        <h2 id="questionText" class="question"></h2>
+        <div id="options" class="options"></div>
+        <div id="quizBar" class="quiz-bar">
+          <div class="quiz-nav">
+            <button id="prevBtn" class="prev-btn" type="button">Previous</button>
+            <button id="nextBtn" class="primary-btn next-btn" type="button">Next</button>
+          </div>
+        </div>
+      </main>
+    </div>
+  </section>
+
+  <section id="resultView" class="view" aria-label="Finished">
+    <div class="result-layout">
+      <div class="result-card">
+        <div class="result-kicker" id="resultSubject">Art history</div>
+        <div class="done-ring" aria-hidden="true"></div>
+        <h2 id="resultTitle">All done.</h2>
+        <p id="resultCopy"></p>
+        <div class="result-actions">
+          <button id="againBtn" class="primary-btn" type="button">Back to start</button>
+          <a class="sq-btn-secondary" href="../index.html" data-hub-back>Back to Hub</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- 退出确认弹层：固定居中，独立于三视图之外 -->
+<div id="exitPanel" class="exit-veil" role="dialog" aria-modal="true" aria-labelledby="exitTitle">
+  <div class="exit-bar">
+    <div class="exit-note">
+      <strong id="exitTitle">Leave this review?</strong>
+      <span id="exitDetail"></span>
+    </div>
+    <div class="exit-actions">
+      <button id="exitStayBtn" class="primary-btn" type="button">Keep going</button>
+      <button id="exitConfirmBtn" class="secondary-btn" type="button">Exit</button>
+    </div>
+  </div>
+</div>
+<script src="../assets/data/sq-art-history.js"></script>
+<script src="../assets/sq-engine.js"></script>
+</body>
+</html>

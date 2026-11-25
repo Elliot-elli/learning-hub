@@ -1,0 +1,33 @@
+# stop-waffling-skills.toml -- 学习站产物的文案约束参数
+# 规则本体在 ~/.workbuddy/skills/stop-waffling-skills/SKILL.md，本文件只放项目参数。
+
+[vars]
+project = "Learning Hub"
+lang = "en"
+stack = "Vanilla JS (no build step)"
+audience = "AP and AD students"
+artifact_kind = "all"
+
+# 领域名词表：R10「UI 信息密度」靠它判定「这句有没有实质信息」。
+# 取自学习站真实代码与登记表字段，不是通用词表。
+[glossary]
+terms = ["flashcard", "flashcards", "quiz", "Super Quiz", "Learning Hub",
+         "AP", "AD", "programme", "subject", "section", "chapter",
+         "level", "card", "cards", "question", "questions", "option",
+         "answer", "term", "definition", "mastery", "mastered",
+         "review", "progress", "chapter", "registry", "manifest",
+         "Storage", "countdown", "seconds", "modules", "subjects",
+         "scored", "scoring", "resume", "queue", "entry"]
+
+[scope]
+include = ["**"]
+exclude = ["node_modules/**", "tools/legacy/**", "tools/shots/**",
+           # 游戏资产由游戏生成技能产出，整合层不得改动（见 tools/game-baseline.json）
+           "assets/engine.js", "assets/sq-engine.js",
+           "assets/flashcards.css", "assets/sq.css",
+           "modules/*.html", "assets/data/ap-*.js", "assets/data/sq-*.js",
+           # 既有开发工具，本次未改动
+           "tools/selfcheck.html"]
+
+[checks]
+severity = "P0"

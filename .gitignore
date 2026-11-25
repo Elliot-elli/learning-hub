@@ -1,0 +1,28 @@
+# ── 截图（可由 node tools/shots.js 重新生成，不进版本库）──
+# 用前导 / 锚定到仓库根，只排除根目录的 shots/。
+# 不加前导 / 时会匹配任意层级的 shots/，连归档区里的历史截图一起吃掉。
+/shots/
+
+# ── 工具与缓存 ──
+__pycache__/
+*.pyc
+node_modules/
+.DS_Store
+Thumbs.db
+
+# ── 本地凭据（绝不入库）──
+.env
+.env.*
+*.local
+.wrangler/
+.netrc
+secrets.json
+
+# ── 临时文件 ──
+*.log
+*.tmp
+*.bak
+
+# 注意：本仓库不忽略 site/。
+# site/ap 与 site/ad 是已验收的部署产物，必须入库：
+# Cloudflare 的构建命令留空，直接发布这份成品，任意 tag 都自带可运行内容。

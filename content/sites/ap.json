@@ -1,0 +1,33 @@
+{
+  "id": "ap",
+  "name": "AP Learning Hub",
+  "brand": "AP",
+  "tagline": "Science and Social Science flashcards.",
+  "description": "Flashcards for AP subjects.",
+  "subjects": [
+    {
+      "id": "science",
+      "title": "Science",
+      "description": "Animal behaviour, ecology and classification.",
+      "sections": [
+        {
+          "id": "science-section1",
+          "title": "Section 1",
+          "module": "ap-science-section1"
+        }
+      ]
+    },
+    {
+      "id": "social-science",
+      "title": "Social Science",
+      "description": "Geography terms and concepts.",
+      "sections": [
+        {
+          "id": "social-science-section1",
+          "title": "Section 1",
+          "module": "ap-social-science-section1"
+        }
+      ]
+    }
+  ]
+}

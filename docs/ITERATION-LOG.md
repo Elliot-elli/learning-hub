@@ -146,3 +146,66 @@
 - 重组前的原始目录完整副本在仓库外的 `_prebuild-backup-20261125/`
 
 ---
+
+## iter-2026-11-25-02 — 双站上线 Cloudflare Pages + 404 错误页
+
+**分支**：feature/iter-2026-11-25-01
+**版本**：v1.1.0
+**日期**：2026-11-25
+**线上地址**：
+- AP：https://learning-hub-ap.pages.dev
+- AD：https://learning-hub-ad.pages.dev
+
+### 改动
+
+**新增 404 错误页**
+
+- `templates/404.html` —— 新模板，外壳与 `site.html` 同构，正文静态
+- `tools/build.py` —— 加 404 渲染（仿 `flashcards.html` 的先例，不进 `SITE_PAGES`）
+- `site/ap/404.html`、`site/ad/404.html` —— 构建产物（各站 14 → 15 个文件）
+
+**新增文档**
+
+- `docs/DEPLOY.md` —— 部署实况、CF 内建行为、三级回滚、踩坑记录
+
+**文档更新**
+
+- `README.md` —— 产物文件数 14 → 15
+- `docs/CONTEXT.md` —— 路由表加 404；文件清单补 `templates/404.html`；修正重组时漏改的 `dist/` 旧路径
+
+### 原因
+
+- Cloudflare Pages 没有 `404.html` 时会假定你是 SPA，把拼错的网址**静默送回首页并返回 200**。
+  补上之后错网址返回真 404。
+- 404 页的正文必须静态：`site.js` 只 `appendChild` 从不清空 `#site-main`，
+  且 `data-view="notfound"` 不命中任何视图分支 → 静态内容能存活，`site.js` 一行都不用改。
+- 404 模板是**同一份渲进两个站**，所以模板里不能出现任何学科名 ——
+  `verify_content.py` 的隔离扫描会查 `ap` 站是否含 "Art History"、`ad` 站是否含 "Social Science"。
+
+### 验收
+
+| 校验 | 结果 |
+|---|---|
+| 题库对账（128 卡 vs 基线） | 逐条一致 |
+| 引擎 sha256 | 6 份拷贝一致 |
+| 浏览器实测 | 106 项通过 |
+| `file://` 双击 | 13 项通过 |
+| CSS 变量 | 6 份样式表全部可解析 |
+| 站点隔离（含新 404 页） | 无交叉引用 |
+| 文案校验 | 仍 8 处 P1 命中，全在 `engine.js`（404 页贡献 0 条） |
+| 产物 md5（重组前后） | 28 个文件逐字节一致 |
+| **线上产物 md5（vs 本地）** | **两站各 15 个文件逐字节一致** |
+| 线上错网址 | 返回 404（未返回首页） |
+
+### 部署实况
+
+两个 Pages 项目均以 GitHub 集成接入仓库 `Elliot-elli/learning-hub`，
+生产分支 `main`，**构建命令留空**，输出目录分别为 `site/ap` 与 `site/ad`。
+
+### 回滚
+
+- `git revert <sha>` 或 `git checkout v1.0.0`
+- 平台回退：CF 后台 → 项目 → Deployments → 选旧部署 → Promote to Production
+- ⚠️ 平台回退只是止血，必须同时 `git revert` 修代码，否则下次 push 会推回坏版本
+
+---

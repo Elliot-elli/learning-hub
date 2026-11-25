@@ -25,8 +25,8 @@ learning-hub/
 │  └─ js/player.js               闪卡页面包屑与返回链接
 ├─ templates/{site,flashcards}.html
 ├─ site/                         ← 产物：自包含部署单元
-│  ├─ ap/                        14 个文件（5 个页面 + 9 个资源）
-│  └─ ad/                        14 个文件
+│  ├─ ap/                        15 个文件（6 个页面 + 9 个资源）
+│  └─ ad/                        15 个文件
 ├─ tools/                        构建与校验
 ├─ docs/
 │  ├─ REPO-SETUP-GUIDE.md        建仓指引（零基础版）

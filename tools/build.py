@@ -282,6 +282,16 @@ def build_site(site, decks):
     }, os.path.join(out, 'flashcards.html'))
     changed.append(os.path.relpath(os.path.join(out, 'flashcards.html'), ROOT))
 
+    # The 404 page carries its own layout, like the flashcards page.
+    # Cloudflare serves it at whatever URL was mistyped, so its body is
+    # static: no view renders it and the shared site.js leaves it alone.
+    render('404.html', {
+        'SITE_ID': sid,
+        'SITE_NAME': site['name'],
+        'BRAND': site['brand'],
+    }, os.path.join(out, '404.html'))
+    changed.append(os.path.relpath(os.path.join(out, '404.html'), ROOT))
+
     return changed
 
 

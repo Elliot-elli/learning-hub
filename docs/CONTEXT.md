@@ -74,6 +74,7 @@ sha256 基线在 `tools/game-baseline.json`，校验脚本会逐份比对。
 | Subject | `subject.html` | `?subject=<subject-id>` |
 | Review | `review.html` | — |
 | Flashcards | `flashcards.html` | `?m=<module-id>` |
+| 404 | `404.html` | — |
 
 **层级与返回路径**：
 
@@ -196,15 +197,15 @@ content/sites/{ap,ad}.json
 content/modules/*.json
 assets/css/{tokens,shell,flashcards,theme-flashcards}.css
 assets/js/{engine,site,player}.js
-templates/{site,flashcards}.html
+templates/{site,flashcards,404}.html
 tools/{build.py,check_css_vars.py,verify_content.py,verify_baseline.py,verify_browser.js,verify_file_mode.js,shots.js,game-baseline.json}
 ```
 
 **产物（构建生成，勿手改）**
 
 ```
-dist/ap/{index,courses,subject,review,flashcards}.html + dist/ap/assets/**
-dist/ad/ 同上
+site/ap/{index,courses,subject,review,flashcards,404}.html + site/ap/assets/**
+site/ad/ 同上
 shots/  截图
 ```
 

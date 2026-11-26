@@ -227,6 +227,19 @@ async function testSite(browser, site, expectedSubjects) {
   const front = await page.locator('#frontText').textContent();
   check(site + ': a card renders', !!(front && front.trim().length), (front || '').slice(0, 40));
 
+  /* The card faces the reader with the term and turns over to the
+     definition. The engine writes the two into different faces, so
+     both are read after a flip. */
+  const gameTerm = (await page.locator('#frontText').textContent() || '').trim();
+  await page.locator('#flashcard').click();
+  await page.waitForTimeout(800);
+  const gameDefinition = (await page.locator('#backText').textContent() || '').trim();
+  check(site + ': the flashcard shows the term first and the meaning on the back',
+    gameTerm.length > 0 && gameDefinition.length > 0 &&
+    gameTerm !== gameDefinition, gameTerm.slice(0, 30) + ' | ' + gameDefinition.slice(0, 30));
+  await page.locator('#flashcard').click();
+  await page.waitForTimeout(800);
+
   /* ---- the archive is written under the expected key ---- */
   await page.locator('#flashcard').click();
   await page.waitForTimeout(150);
@@ -488,6 +501,10 @@ async function testReview(browser, site, subjectIds) {
 
   check(site + ': a result cannot be given before the answer is revealed',
     (await page.locator('.rs-results').count()) === 0);
+  /* The answer must be hidden, not merely absent from the text. */
+  check(site + ': the answer is hidden before it is asked for',
+    (await page.locator('.rs-answer-text').count()) === 0 ||
+    !(await page.locator('.rs-answer-text').first().isVisible()));
   check(site + ': the session shows how far along the round is',
     /^\d{2} \/ \d{2}$/.test((await page.locator('#rsProgress').textContent()) || ''),
     await page.locator('#rsProgress').textContent());
@@ -495,18 +512,22 @@ async function testReview(browser, site, subjectIds) {
   await page.locator('#rsReveal').click();
   await page.waitForSelector('.rs-results');
   check(site + ': the answer is shown once it has been asked for',
-    ((await page.locator('.rs-term').textContent()) || '').length > 0);
+    ((await page.locator('.rs-answer-text').textContent()) || '').length > 0);
+  /* Visibility, not just text: a hidden element still answers
+     textContent, so the text check alone cannot see a broken reveal. */
+  check(site + ': the answer is actually visible after the reveal',
+    await page.locator('.rs-answer-text').first().isVisible());
 
-  /* The card asks for the term, the way the flashcard game does: the
-     definition is on the front, the term on the back. */
+  /* The card follows the flashcard game: the term on the front, the
+     meaning revealed on request. */
   const prompt = await page.locator('.rs-prompt').textContent();
-  const revealed = await page.locator('.rs-term').textContent();
-  check(site + ': the card shows the definition and reveals the term',
+  const revealed = await page.locator('.rs-answer-text').textContent();
+  check(site + ': the card shows the term and reveals the meaning',
     (prompt || '').length > 0 && (revealed || '').length > 0 &&
     prompt.trim() !== revealed.trim());
 
   /* Two clicks in a row must not carry on into the next card. */
-  const termBefore = await page.locator('.rs-term').textContent();
+  const termBefore = await page.locator('.rs-prompt').textContent();
   await page.locator('.rs-unsure').click();
   await page.locator('.rs-unsure').click({ force: true }).catch(() => {});
   await page.waitForTimeout(250);
@@ -514,7 +535,7 @@ async function testReview(browser, site, subjectIds) {
   check(site + ': a second click does not submit the same card twice',
     progressAfterDouble === '02 / 02', progressAfterDouble);
   check(site + ': the round moved on to the next term',
-    (await page.locator('.rs-term').textContent()) !== termBefore ||
+    (await page.locator('.rs-prompt').textContent()) !== termBefore ||
     (await page.locator('.rs-done').count()) === 1);
 
   /* The result is kept, and the term is still waiting. */

@@ -35,6 +35,29 @@
 .card-front p{color:#3A5766}
 .state-btn.unsure:hover{border-color:#C79A3E;color:#8A6A22}
 
+/* ---------- card face orientation ----------
+   The flashcard stylesheet treats the front as small body text and the
+   back as a large headline, because the answer used to be the back.
+   With the term on the front the two faces have to trade places:
+   the term takes the large type, the definition takes the small one
+   and keeps the is-long / is-verylong downgrades.
+
+   The engine adds .term-front to the body when the term is the face
+   that points at the reader. Nothing else changes: the deck data and
+   the flip logic stay as they are. */
+body.term-front .card-front p{
+  font-size:clamp(1.7rem,3.6vw,3.2rem);
+  line-height:1.1;font-weight:800;letter-spacing:-.045em;
+  color:var(--ink);overflow-wrap:anywhere;
+}
+body.term-front .card-back p{
+  font-size:clamp(1.02rem,1.35vw,1.15rem);
+  line-height:1.75;font-weight:400;letter-spacing:0;
+  color:#3A5766;
+}
+body.term-front .card-back.is-long p{font-size:clamp(.88rem,1.1vw,1rem);line-height:1.6}
+body.term-front .card-back.is-verylong p{font-size:clamp(.8rem,1vw,.9rem);line-height:1.55}
+
 /* State buttons carry the brand colour so the answer row reads as one
    control group. Unsure and unknown keep a lighter fill for contrast. */
 .state-btn{border-color:var(--brand);background:var(--brand);color:#fff;font-weight:700}

@@ -247,7 +247,8 @@
 - `tools/build.py` —— 新页面与新资源的装配；`review.css` 与三个复习脚本入共享资源。
 - `tools/verify_baseline.py` —— 期望摘要改读**仓库内**的 `tools/game-baseline.json`
   （契约文件），归档快照降级为「与快照的差异」提示；快照缺失不再报错。
-- `tools/verify_browser.js` —— 新增 `testReview()`：复习路径 35 项断言。
+- `tools/verify_browser.js` —— 新增 `testReview()`：复习路径断言
+  （最终执行 80 项，两站合计 —— 实测口径见 iter-2026-11-26-03）。
 - `tools/verify_file_mode.js` —— 新增 `file://` 下的复习路径 5 项断言。
 - `tools/shots.js` —— 复习中心与复习轮次进截图清单；截图前先造出真实数据。
 - `docs/CONTEXT.md` / `README.md` —— 路由表、存档契约、文件清单同步。
@@ -313,8 +314,8 @@ Review ：Review → Subject → Section → Review list → Review session
 |---|---|
 | 题库对账（128 卡 vs 基线） | 逐条一致 |
 | 游戏资产 sha256 | 6 份拷贝一致（引擎摘要已按契约更新并留档原因） |
-| 浏览器实测 | **170 项通过**（含复习路径 49 项） |
-| `file://` 双击 | **23 项通过**（含复习路径 5 项） |
+| 浏览器实测 | **170 项通过**（复习路径 80 项，两站合计；`testSite` 90 + `testReview` 80） |
+| `file://` 双击 | **23 项通过**（复习路径 10 项，两站各 5） |
 | CSS 变量 | 8 份样式表全部可解析 |
 | 两站隔离 | 无交叉引用 |
 | 截图 | 43 张（含复习中心三屏 × 三档视口） |
@@ -322,6 +323,152 @@ Review ：Review → Subject → Section → Review list → Review session
 ### 回滚
 
 - `git revert <sha>` 或 `git checkout v1.1.0`
+- 平台回滚：CF 后台 → 项目 → Deployments → 选旧部署 → Promote to Production
+- ⚠️ 平台回滚只是止血，必须同时 `git revert` 修代码
+
+---
+
+## iter-2026-11-26-03 — 朝向试验回滚 + 本轮改动清单归档
+
+**分支**：feature/iter-2026-11-26-03
+**日期**：2026-11-26
+**依据**：`APAD_Learning_Hub_Review_Center_Iteration_Spec.md` V1.0
+**提交**：`f90a751`（线上）　|　**标签**：`v1.2.0`
+
+> 本条是 iter-2026-11-26-01 / -02 / -03 三笔的**合并归档**，
+> 改动清单以**最终状态**为准。逐笔细节见上文 iter-01 条目与 git 历史。
+
+### 背景：两笔朝向往返
+
+| 笔次 | 提交 | 做了什么 | 结论 |
+|---|---|---|---|
+| iter-02 | `ea8493d` → `5153bff` | 把闪卡也改成「正面术语、背面释义」，并给 body 加 `.term-front` | ❌ 超范围 |
+| iter-03 | `32d36f7` → `f90a751` | 闪卡整体回滚到原朝向；复习保留 §4.4 | ✅ 定稿 |
+
+iter-02 的判断依据是「学习与复习应当同向」。用户澄清后确认为**误解**：
+「闪卡别动」= 闪卡字节不许动，复习板块按文档 §4.4 走即可，
+**两条路径允许方向相反**。iter-03 随即回滚。
+
+### 回滚做法：整体还原，不是等价重写
+
+```
+git checkout 1575853 -- assets/js/engine.js assets/css/theme-flashcards.css
+```
+
+`1575853` 是「Review 重构已完成、朝向试验尚未开始」的那一版，
+因此还原后**闪卡引擎的字节与朝向试验前逐字节一致**，
+且 Review 清单的移除成果完整保留。
+
+| 文件 | 回滚后状态 |
+|---|---|
+| `assets/js/engine.js` | 与 `1575853` 逐字节一致，sha256 `59d1293e18a408f318d0980f65c0bfbcaa7bf85030442fa19ebde8013ebc465b` |
+| `assets/css/theme-flashcards.css` | 与 `1575853` 逐字节一致，`body.term-front` 覆盖块已消失 |
+| `TERM_FRONT` 常量 | 已删除 |
+
+> ⚠️ 教训：**「加个开关保持行为相同」不等于「闪卡别动」** ——
+> 前者仍改了引擎字节与样式表，属于违约。真正的还原是字节一致。
+
+### 最终卡面朝向
+
+| | 正面 | 背面 / 揭晓 |
+|---|---|---|
+| 闪卡页 | 释义 `definition` | 术语 `term`（翻面才看到） |
+| 复习轮次 | 术语 `term` | 释义 `definition`（`Reveal answer` 后） |
+
+两条路径互不依赖：复习模块读 `review-store.js` 的 `definition(term)`，
+自己决定正反面，改一侧不波及另一侧。
+
+### 本轮改动清单（最终状态）
+
+**新增（源码层 5 个）**
+
+| 文件 | 作用 |
+|---|---|
+| `assets/js/review-store.js` | 复习状态唯一读写入口：折叠旧存档、状态映射、去重、持久化 |
+| `assets/js/review.js` | Review 中心页：URL 路由、学科 Tab、Section 列表、分组清单 |
+| `assets/js/review-session.js` | 复习轮次：队列快照、翻面、结果反馈、完成页 |
+| `assets/css/review.css` | 复习中心与复习轮次样式（沿用现有设计令牌） |
+| `templates/review-session.html` | 复习轮次模板（独立版面，同闪卡页做法） |
+
+**修改（源码层 13 个）**
+
+| 文件 | 改动 |
+|---|---|
+| `assets/js/engine.js` | 移除内嵌复习清单；`markReviewed`（写 `store.review`）保留为学习→复习的唯一通道；**最终字节与朝向试验前一致** |
+| `templates/flashcards.html` | 删除复习清单区块与两个入口按钮 |
+| `assets/js/site.js` | 侧栏徽标改读复习存档；导出 `LH_SHELL`；旧平铺列表交棒给复习中心模块 |
+| `templates/site.html` | 新增 `@@EXTRA_CSS@@` / `@@EXTRA_SCRIPTS@@` 两个占位 |
+| `tools/build.py` | 新页面与新资源的装配（`review.css` + 三个复习脚本入共享资源） |
+| `tools/game-baseline.json` | 游戏资产基线契约，记录引擎改动原因与摘要 |
+| `tools/verify_baseline.py` | 期望摘要改读仓库内契约文件，校验不再形同虚设 |
+| `tools/verify_browser.js` | 新增 `testReview()` 复习路径断言 |
+| `tools/verify_file_mode.js` | 新增 `file://` 下复习路径 5 项断言 |
+| `tools/shots.js` | 复习中心三屏进截图清单，截图前先造真实数据 |
+| `docs/CONTEXT.md` / `docs/ITERATION-LOG.md` / `README.md` | 路由表、存档契约、文件清单同步 |
+
+**产物层**：`site/ap/`、`site/ad/` 各 15 → **20 个文件**
+（新增 `review-session.html` 与 `assets/css/review.css`、三个复习脚本）。
+
+源码层净变化：**18 个文件，+2275 / −345 行**。
+
+### 新增功能一览
+
+| 功能 | 实现要点 |
+|---|---|
+| **独立 Review 路径** | `Review → 学科 → Section → 复习清单 → 复习轮次`，五级全是独立文档，不进闪卡流程 |
+| **横向学科导航** | 学科以 Tab 并列，点学科换 Section 列表（不跳页），默认选中「有待复习项」的那一个 |
+| **按状态分组的清单** | `Needs practice` → `Still learning` → `Mastered`，已掌握**默认折叠** |
+| **只收「不知道/不确定」** | 单纯翻卡、返回不入队；闪卡里点 `Not sure` / `I don't know` 才入队 |
+| **一术语一条记录** | 重复标记是**更新**状态而非插入；主键 `学科\|章节\|术语`，不只用术语文本 |
+| **复习轮次** | 队列快照（刷新不丢进度）→ `Reveal answer` → `Again / Not sure / Got it` → 完成页 |
+| **主动回忆** | 正面显示术语，揭晓后给释义（§4.4 图示） |
+| **旧数据兼容** | 引擎的 `store.review` / `store.mastered` **只读折叠，一个字节都不改** |
+| **侧栏徽标** | 实时显示全站待复习词数，已掌握不计入 |
+
+### 一处数字订正
+
+iter-01 条目里的「复习路径 49 项」与外部文档里的「43 项」**都是错的** ——
+那是数静态 `check(` 调用次数的估算，既没考虑两站各跑一次，也没考虑部分断言在条件分支里。
+
+**实测口径**：给 `check()` helper 挂栈回溯，按调用方函数分组计数。
+
+| 套件 | 总数 | 拆分 |
+|---|---|---|
+| `verify_browser.js` | **170** | `testSite` 90 + `testReview` **80**（两站合计，复习路径） |
+| `verify_file_mode.js` | **23** | 复习路径 **10**（两站各 5）+ 其他 13 |
+
+> 探针脚本已删除，未入库。
+
+### 验收
+
+| 校验 | 结果 |
+|---|---|
+| 浏览器实测 | **170 项通过 / 0 失败**（复习路径 80） |
+| `file://` 双击 | **23 项通过 / 0 失败**（复习路径 10） |
+| 线上复测 | AP **19/19**、AD **19/19** |
+| 线上产物 | 两站各 20 个文件**逐字节一致**（40 个文件全比 md5） |
+| 题库对账 | 128 张卡、storeKey、章节数逐条一致，未变 |
+| 游戏资产 sha256 | 6 份一致；引擎摘要 `59d1293e…`，朝向试验与回滚在 `game-baseline.json` 的 history 里各留一笔 |
+| CSS 变量 | 8 份样式表全部可解析 |
+| 两站隔离 | 无交叉引用 |
+| **反向验证** | 故意改坏引擎朝向 → 闪卡断言如期 FAIL、复习断言仍 ok |
+| 404 | 拼错网址返回真 404（不是首页） |
+
+> 反向验证的价值：朝向断言只比两个字符串不相等的话，两面互换角色也会通过。
+> 改成**对照题库数据**校验（正面必须等于某张卡的 definition，翻转后必须等于同一张卡的 term），
+> 才成为能证伪的判据。
+
+### 仍需人工决策 / 未完成
+
+1. **Review 首页移除了「Unfinished chapters」面板** —— 它讲的是学习进度，混在复习路径里会让两条路径纠缠，与 §13 的分工冲突；进度信息在 Courses 科目进度条与 Overview 仪表盘仍在。
+2. **`Again` 在本轮内回队一次**（非无限重复），`Got it` 的间隔为 3 天常量（写在 `review-store.js` 顶部，可调）—— 按规范做的简化。
+3. **Super Quiz 已于更早迭代删除**，仓库中不存在该模块，本次无从影响 ——「不影响 Super Quiz」这条自动满足。
+4. **未做**：`docs/DEPLOY.md` 未更新（页面表变了但流程没变）；未配 `_redirects` / `_headers`；未做微信端专项适配（`*.pages.dev` 在微信 UA 下被平台拦截，是既有平台行为）。
+5. **正式对外前建议配自定义域名** —— `*.pages.dev` 在微信内会被平台拦截。
+
+### 回滚
+
+- `git revert <sha>` 或 `git checkout v1.2.0`
 - 平台回滚：CF 后台 → 项目 → Deployments → 选旧部署 → Promote to Production
 - ⚠️ 平台回滚只是止血，必须同时 `git revert` 修代码
 

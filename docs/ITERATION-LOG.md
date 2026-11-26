@@ -209,6 +209,100 @@
 - ⚠️ 平台回退只是止血，必须同时 `git revert` 修代码，否则下次 push 会推回坏版本
 
 ---
+
+## iter-2026-11-26-01 — Review Center 重构：把复习从闪卡里拆出来
+
+**分支**：feature/iter-2026-11-26-01
+**日期**：2026-11-26
+**依据**：`APAD_Learning_Hub_Review_Center_Iteration_Spec.md` V1.0
+
+### 问题
+
+点击 Review 里的任何一条，直接跳进闪卡页，回来时层级错乱；
+复习清单本身还嵌在闪卡页内部（游戏内「Review N」按钮 + 章节页「Review list」按钮），
+学习、复习、返回三件事互相缠在一起。
+
+### 改动
+
+**新增（源码层，6 个）**
+
+- `assets/js/review-store.js` —— 复习状态服务。折叠旧存档、状态映射、去重、持久化。
+- `assets/js/review.js` —— 复习中心页面。URL 路由、学科 Tab、Section 列表、分组清单。
+- `assets/js/review-session.js` —— 复习轮次。队列快照、翻面、结果反馈、完成页。
+- `assets/css/review.css` —— 复习中心与复习轮次的样式。
+- `templates/review-session.html` —— 复习轮次模板（独立版面，同闪卡页的做法）。
+- `tools/game-baseline.json` 的 `history` —— 记录引擎改动的原因与新摘要。
+
+**修改（源码层，10 个）**
+
+- `assets/js/engine.js` —— **移除**内嵌复习清单（`reviewView` / `openReview` /
+  `closeReview` / `renderReview` / `pendingRound` / `pendingHistory` /
+  `markMastered` / `cardByTerm`）。翻卡逻辑、队列算法、进度存档、章节编号、
+  `storeKey` 全部未动。`markReviewed`（写 `store.review`）保留 ——
+  它是学习路径通往复习路径的唯一通道。
+- `templates/flashcards.html` —— 移除复习清单区块与两个入口按钮。
+- `assets/js/site.js` —— 侧栏徽标改读复习存档；导出 `window.LH_SHELL`；
+  删掉旧的平铺复习列表，改为把 review 视图交给复习中心模块。
+- `templates/site.html` —— 加 `@@EXTRA_CSS@@` / `@@EXTRA_SCRIPTS@@` 两个占位。
+- `tools/build.py` —— 新页面与新资源的装配；`review.css` 与三个复习脚本入共享资源。
+- `tools/verify_baseline.py` —— 期望摘要改读**仓库内**的 `tools/game-baseline.json`
+  （契约文件），归档快照降级为「与快照的差异」提示；快照缺失不再报错。
+- `tools/verify_browser.js` —— 新增 `testReview()`：复习路径 35 项断言。
+- `tools/verify_file_mode.js` —— 新增 `file://` 下的复习路径 5 项断言。
+- `tools/shots.js` —— 复习中心与复习轮次进截图清单；截图前先造出真实数据。
+- `docs/CONTEXT.md` / `README.md` —— 路由表、存档契约、文件清单同步。
+
+**产物（构建生成）**
+
+- `site/ap/` 与 `site/ad/` 各 15 → 20 个文件（新增 `review-session.html`
+  与 `assets/css/review.css`、三个复习脚本）。
+
+### 信息架构
+
+```
+Learning：Overview → Courses → Subject → Flashcards
+Review ：Review → Subject → Section → Review list → Review session
+```
+
+- Review 入口独立，学科横向排列（Tab），点学科换 Section 列表（不跳页）。
+- Review 清单按复习状态分组：`Needs practice` → `Still learning` → `Mastered`（默认折叠）。
+- 复习轮次是独立文档，不进闪卡流程；结束后回该 Section 的复习清单。
+- 固定父级返回：Review 首页 → Overview；学科页 → Review 首页；
+  Section 清单 → 该学科页；复习轮次 → 该 Section 清单。
+
+### 复习状态与持久化
+
+| 项 | 值 |
+|---|---|
+| 状态存档键 | `lh_review_v1:<site>`（每站一份，与题库内容分开存） |
+| 术语主键 | `subjectId\|sectionId\|term`（不只用术语文本） |
+| 状态 | `again`（不知道）/ `learning`（不确定、还没稳）/ `mastered`（已掌握） |
+| 映射 | Again → `again`；Not sure → `learning`；Got it → `learning`，连续两轮不同轮次答对才 `mastered` |
+| 间隔 | Got it 后约 3 天再查（常量在 `review-store.js` 的 `GOT_IT_INTERVAL`，可调） |
+| 旧数据 | 引擎的 `store.review` / `store.mastered` **只读折叠**，一个字节都不改 |
+| 折叠裁决 | 按时间戳：旧记录不覆盖新记录；重新标记「不知道」会把已掌握术语重新激活 |
+| 去重 | 同一术语只有一条当前记录，重复标记是更新而不是插入 |
+
+### 验收
+
+| 校验 | 结果 |
+|---|---|
+| 题库对账（128 卡 vs 基线） | 逐条一致 |
+| 游戏资产 sha256 | 6 份拷贝一致（引擎摘要已按契约更新并留档原因） |
+| 浏览器实测 | **156 项通过**（含复习路径 35 项） |
+| `file://` 双击 | **23 项通过**（含复习路径 5 项） |
+| CSS 变量 | 8 份样式表全部可解析 |
+| 两站隔离 | 无交叉引用 |
+| 截图 | 43 张（含复习中心三屏 × 三档视口） |
+
+### 回滚
+
+- `git revert <sha>` 或 `git checkout v1.1.0`
+- 平台回滚：CF 后台 → 项目 → Deployments → 选旧部署 → Promote to Production
+- ⚠️ 平台回滚只是止血，必须同时 `git revert` 修代码
+
+---
+
 ## 附录 · iter-2026-11-25-02 改动速查
 
 > 本节是本轮迭代的清单速查，供日后回溯。完整叙述见上文 iter-2026-11-25-02 条目。

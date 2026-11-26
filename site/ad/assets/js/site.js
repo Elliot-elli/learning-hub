@@ -16,8 +16,15 @@
  * flashcards. Those two are the only pages with a back control, and it
  * always points one level up inside the same section.
  *
+ * Review has its own path: Review -> Subject -> Section -> Review list
+ * -> Review session. That path is rendered by the review module, which
+ * takes over from this file on the review page. The shell pieces it
+ * needs are handed over through window.LH_SHELL, so both pages carry
+ * the same navigation and the same look.
+ *
  * Progress comes from localStorage, one key per section. The engine owns
- * that format; this file only reads it. */
+ * that format; this file only reads it. The review queue lives in its
+ * own store, which folds in the terms the engine flagged. */
 
 (function () {
   'use strict';
@@ -131,20 +138,16 @@
     return found;
   }
 
-  /* Terms the learner flagged and has not marked as learned yet. */
+  /* Terms the learner flagged and has not marked as learned yet.
+     The count comes from the review store, which folds in the terms
+     flagged while learning and holds the state of the review rounds. */
   function pendingReview() {
-    var pending = [];
-    allSections.forEach(function (entry) {
-      var store = readStore(entry.section.storeKey);
-      if (!store || !store.review) return;
-      var mastered = store.mastered || {};
-      Object.keys(store.review).forEach(function (term) {
-        if (!mastered[term]) {
-          pending.push({ term: term, subject: entry.subject, section: entry.section });
-        }
-      });
-    });
-    return pending;
+    if (!window.LH_REVIEW || !window.LH_REVIEW.pendingTotal) return 0;
+    try {
+      return window.LH_REVIEW.pendingTotal();
+    } catch (e) {
+      return 0;
+    }
   }
 
   /* ---------- scroll position memory ----------
@@ -209,7 +212,7 @@
     if (!navEl) return;
     navEl.textContent = '';
     var selected = SELECTED_BY_VIEW[view];
-    var pending = pendingReview().length;
+    var pending = pendingReview();
 
     NAV_ITEMS.forEach(function (item) {
       var link = el('a', 'nav-item');
@@ -500,81 +503,30 @@
     main.appendChild(panel);
   }
 
-  function renderReview() {
-    /* Review is a top level page of its own, like Courses. */
-    buildCrumbs([]);
-    titleEl.textContent = 'Review';
-
-    var pending = pendingReview();
-    var panel = el('section', 'panel');
-    panel.appendChild(panelHead('Waiting for review'));
-    if (!pending.length) {
-      panel.appendChild(emptyBlock('Nothing to review',
-        'Terms marked unsure or unknown collect here.'));
-    } else {
-      var rows = el('div', 'section-list');
-      pending.slice(0, 40).forEach(function (item) {
-        var row = el('article', 'section-row');
-        var grow = el('div', 'grow');
-        grow.appendChild(el('h3', null, item.term));
-        grow.appendChild(el('p', null, item.subject.title + ' · ' + item.section.title));
-        row.appendChild(grow);
-        var cta = el('a', 'icon-cta');
-        cta.href = sectionHref(item.section);
-        cta.setAttribute('aria-label', 'Open ' + item.section.title);
-        cta.title = item.section.title;
-        cta.appendChild(icon('arrow', 'cta-icon'));
-        row.appendChild(cta);
-        rows.appendChild(row);
-      });
-      panel.appendChild(rows);
-    }
-    main.appendChild(panel);
-
-    /* A section that has not been opened yet belongs on the Courses
-       list, not in a list of unfinished work. Only sections with
-       progress of their own count as open. */
-    var open = allSections.filter(function (entry) {
-      var p = sectionProgress(entry.section);
-      return p.cleared > 0 && p.cleared < entry.section.chapters;
-    });
-    var openPanel = el('section', 'panel');
-    openPanel.style.marginTop = '16px';
-    openPanel.appendChild(panelHead('Unfinished chapters'));
-    if (!open.length) {
-      openPanel.appendChild(emptyBlock('Nothing unfinished',
-        'Sections with progress show up here until they are cleared.'));
-    } else {
-      var openRows = el('div', 'section-list');
-      open.forEach(function (entry) {
-        var section = entry.section;
-        var p = sectionProgress(section);
-        var row = el('article', 'section-row');
-        var grow = el('div', 'grow');
-        grow.appendChild(el('h3', null, section.title + ' · ' + entry.subject.title));
-        grow.appendChild(el('p', null,
-          (section.chapters - p.cleared) + ' of ' + section.chapters + ' chapters left'));
-        row.appendChild(grow);
-        var cta = el('a', 'icon-cta');
-        cta.href = sectionHref(section);
-        cta.setAttribute('aria-label', 'Resume ' + section.title);
-        cta.title = section.title;
-        cta.appendChild(icon('arrow', 'cta-icon'));
-        row.appendChild(cta);
-        openRows.appendChild(row);
-      });
-      openPanel.appendChild(openRows);
-    }
-    main.appendChild(openPanel);
-  }
-
   /* ---------- boot ---------- */
+
+  /* The shell pieces the review centre reuses: the breadcrumb trail,
+     the back control, and the icon set. The review centre is a page of
+     its own, but it sits in the same shell and has to look the same. */
+  window.LH_SHELL = {
+    el: el,
+    icon: icon,
+    ICONS: ICONS,
+    buildCrumbs: buildCrumbs,
+    addBack: addBack
+  };
+
   buildNav();
 
-  if (view === 'overview') renderOverview();
+  if (view === 'review') {
+    /* The review centre is rendered by its own module: it owns the
+       subject tabs, the section list and the review list. */
+    if (window.LH_REVIEW_CENTER && window.LH_REVIEW_CENTER.mount) {
+      window.LH_REVIEW_CENTER.mount();
+    }
+  } else if (view === 'overview') renderOverview();
   else if (view === 'courses') renderCourses();
   else if (view === 'subject') renderSubject();
-  else if (view === 'review') renderReview();
 
   /* Restore the offset after the content is in the document: scrolling
      to a position on a page that has not been laid out yet lands

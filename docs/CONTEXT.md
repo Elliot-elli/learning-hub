@@ -28,6 +28,9 @@
    `Overview(index.html) → Courses(courses.html) → Subject(subject.html?subject=X) → Flashcards(flashcards.html?m=Y)`。
    Section 点击**直接开 Flashcards**，没有活动选择页。
 6. **返回控件一律纯图标**（箭头 SVG），不附文字；`aria-label` 留给读屏。
+7. **Review 是独立路径**（2026-11-26 重构）：
+   `Review(review.html) → Subject → Section → Review list → Review session(review-session.html)`。
+   闪卡页里**不再有复习清单**，两条路径共用术语数据但互不嵌套。
 
 ---
 
@@ -42,6 +45,17 @@ tools/       构建与校验脚本
 dist/ap/     自包含部署单元（独立上传）
 dist/ad/     自包含部署单元（独立上传）
 ```
+
+**复习中心的三层职责**：
+
+| 文件 | 职责 |
+|---|---|
+| `assets/js/review-store.js` | 复习状态的唯一读写入口：折叠旧存档、状态映射、持久化 |
+| `assets/js/review.js` | Review 中心页面：路由、学科 Tab、Section 列表、复习清单 |
+| `assets/js/review-session.js` | 复习轮次：队列、翻面、结果反馈、完成页 |
+
+`site.js` 把外壳（侧栏、面包屑、返回键）通过 `window.LH_SHELL` 交给复习中心复用，
+所以两个页面长得一样，但路由各自独立。
 
 **为什么 JSON 编译成同步 `<script src>` 而不是 `fetch()`**：
 引擎在执行时同步读 `window.AP_MODULES`，改成 fetch 会改变绑定时机，
@@ -63,6 +77,19 @@ sha256 基线在 `tools/game-baseline.json`，校验脚本会逐份比对。
 - 章节编号**全局按牌组顺序** `chapter1`、`chapter2`……，**不是** `2.1` / `2.2`。
 - 三个 storeKey 与 v2 逐字符相同 → v2 时期学生的复习进度直接可用。
 
+**复习存档（新增，2026-11-26）**：
+
+| 键 | 内容 | 写入方 |
+|---|---|---|
+| `fx_fc_v1:<module>` 的 `review` 字段 | 学习时标记「不知道 / 不确定」的术语 | 闪卡引擎 |
+| `fx_fc_v1:<module>` 的 `mastered` 字段 | 旧版「已掌握」记录 | 旧版复习清单（引擎仍读写，不再新增） |
+| `lh_review_v1:<site>` | 复习中心的状态主体：`{v, terms:{…}}` | `review-store.js` |
+
+- 术语主键 = `subjectId|sectionId|term`，**不只用术语文本**。
+- `lh_review_v1:<site>` 是**复制**旧记录，不是搬家：旧存档一个字节都不改。
+- 旧记录折叠进新存档时按时间戳裁决：旧的翻不动新的，新的覆盖旧的。
+- 术语内容与复习状态分开存放 → 改题库不会动到学习记录。
+
 ---
 
 ## 5. 路由与链接
@@ -72,7 +99,9 @@ sha256 基线在 `tools/game-baseline.json`，校验脚本会逐份比对。
 | Overview | `index.html` | — |
 | Courses | `courses.html` | — |
 | Subject | `subject.html` | `?subject=<subject-id>` |
-| Review | `review.html` | — |
+| Review 学科入口 | `review.html` | `?subject=<subject-id>`（可空） |
+| Review 清单 | `review.html` | `?subject=<id>&section=<id>` |
+| Review Session | `review-session.html` | `?subject=<id>&section=<id>[&term=<术语>]` |
 | Flashcards | `flashcards.html` | `?m=<module-id>` |
 | 404 | `404.html` | — |
 
@@ -83,10 +112,18 @@ sha256 基线在 `tools/game-baseline.json`，校验脚本会逐份比对。
 | Overview | 无 | 空 | Overview |
 | **Courses** | **无** | **空** | Courses |
 | Subject | → Courses | `Courses / <学科>` | Courses |
-| Review | 无 | 空 | Review |
+| Review 学科入口 | → Overview | 空 | Review |
+| Review 清单 | → 该学科的 Review 页 | `Review / <学科>` | Review |
+| Review Session | → 该 Section 的 Review 清单 | —（独立版面） | — |
 | Flashcards | ← 学科页（浮动的圆键） | `Courses / <学科> / <章节>` | — |
 
 Courses 是它自己这一块的顶层，**没有返回 Overview 的路径** —— 只能靠侧栏离开。
+
+**Review 的位置就是 URL**：`review.html` 的三态由查询参数唯一决定
+（无参 / `?subject=` / `?subject=&section=`），没有互相独立的布尔开关。
+学科 Tab 与 Section 行都是真链接（`href` 就是目标 URL），
+点下去走 `history.pushState`，所以浏览器前进 / 后退走的路径与页内返回键一致；
+`pushState` 不可用时退回整页跳转，行为不变。
 
 ---
 
@@ -165,6 +202,8 @@ Chromium 路径：`C:/Users/EDY/AppData/Local/ms-playwright/chromium-1234/chrome
    闪卡页进度；Firefox 每个文件独立 origin，读不到。部署到服务器后无此问题。
 2. **AD 站只有 1 章**，Review 页的「未完成章节」列表恒为空 —— 该站无法处于「部分完成」状态。
 3. **引擎头部的注释写着早期模块名** —— 内容隔离扫描前会剥离注释，引擎保持字节一致。
+4. **Review 页不再有「未完成章节」**（2026-11-26 重构）—— 那块面板讲的是学习进度，
+   混进复习路径会让两条路径纠缠。进度信息在 Courses 页的科目进度条与 Overview 页的仪表盘上仍在。
 
 ---
 
@@ -176,6 +215,10 @@ Chromium 路径：`C:/Users/EDY/AppData/Local/ms-playwright/chromium-1234/chrome
 
 构建会校验：storeKey 不重复、同学科内 term 不重复、每个 Section 指向存在的题库。
 校验不过就中止，不写文件。
+
+**加学科后复习中心不用改**：学科 Tab、Section 列表、待复习数量都是从
+`LH_SITE` 与题库现算的。唯一要求是**同一个 Section 的 term 不能重名**
+（构建已校验）—— 复习主键含学科与章节，同名词也能分开存。
 
 ---
 
@@ -195,9 +238,9 @@ Chromium 路径：`C:/Users/EDY/AppData/Local/ms-playwright/chromium-1234/chrome
 ```
 content/sites/{ap,ad}.json
 content/modules/*.json
-assets/css/{tokens,shell,flashcards,theme-flashcards}.css
-assets/js/{engine,site,player}.js
-templates/{site,flashcards,404}.html
+assets/css/{tokens,shell,flashcards,theme-flashcards,review}.css
+assets/js/{engine,site,player,review-store,review,review-session}.js
+templates/{site,flashcards,404,review-session}.html
 tools/{build.py,check_css_vars.py,verify_content.py,verify_baseline.py,verify_browser.js,verify_file_mode.js,shots.js,game-baseline.json}
 ```
 

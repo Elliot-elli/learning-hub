@@ -26,7 +26,6 @@
   <section class="view levels" id="levelsView" aria-label="Choose a chapter">
     <nav class="topbar">
       <button class="history back-btn" id="levelsBackBtn" type="button" aria-label="Back"></button>
-      <button class="link-btn" id="levelsReviewBtn" type="button">Review list <span id="levelsReviewCount"></span></button>
     </nav>
     <header class="levels-header">
       <h2>Choose a chapter</h2>
@@ -47,7 +46,6 @@
       <div class="stats" aria-live="polite">
         <span class="stat">Progress <strong id="progressText">1 / 0</strong></span>
         <span class="stat">Known <strong id="knownText">0</strong></span>
-        <button class="stat stat-review" id="reviewStatBtn" type="button" aria-label="Review the words marked in this round">Review <strong id="reviewText">0</strong></button>
       </div>
     </header>
     <div class="progress"><span id="progressBar"></span></div>
@@ -83,18 +81,6 @@
         <button class="history back-btn" id="summaryLevelsBtn" type="button" aria-label="Back"></button>
       </div>
     </div>
-  </section>
-
-  <section class="view review" id="reviewView" aria-label="Review list">
-    <nav class="topbar">
-      <button class="history back-btn" id="reviewBackBtn" type="button" aria-label="Back"></button>
-      <span class="review-scope" id="reviewScope">This round</span>
-    </nav>
-    <header class="review-header">
-      <h2 class="review-title" id="reviewTitle">Review list</h2>
-      <div class="review-count" id="reviewCount" aria-live="polite"></div>
-    </header>
-    <div class="review-body" id="reviewBody" role="list"></div>
   </section>
 </div>
 <div class="exit-mask" id="exitMask" hidden>

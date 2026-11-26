@@ -259,91 +259,6 @@ async function testSite(browser, site, expectedSubjects) {
   check(site + ': the courses page still offers no way back',
     (await page.locator('.back-icon').count()) === 0);
 
-  /* ---- Review is a top level page of its own ---- */
-  await page.locator('#site-nav a', { hasText: 'Review' }).click();
-  await page.waitForSelector('.panel');
-  check(site + ': the review page has no back control',
-    (await page.locator('.back-icon').count()) === 0);
-  check(site + ': the review page has no breadcrumb trail',
-    (await crumbText(page)).length === 0);
-
-  const activeOnReview = await page.locator('#site-nav .nav-item.is-active')
-    .allTextContents();
-  check(site + ': Review is selected on the review page',
-    activeOnReview.length === 1 && activeOnReview[0].startsWith('Review'),
-    activeOnReview.join(','));
-
-  const reviewText = await page.locator('body').innerText();
-  check(site + ': the review page shows its waiting list',
-    /Waiting for review/.test(reviewText));
-
-  /* ---- the review module reacts to real progress ----
-     A term marked unsure belongs in the waiting list, a term already
-     mastered does not, and the sidebar badge counts the rest. The
-     module and its chapter count come from the site's own
-     configuration, so the check works the same way on both sites.
-
-     The cleared chapter count is one short of the total, which puts
-     the section in the state the page describes: started, not done. */
-  const deck = await page.evaluate(() => {
-    var site = window.LH_SITE;
-    var section = site.subjects[0].sections[0];
-    return { module: section.module, chapters: section.chapters };
-  });
-  const clearedCount = Math.max(0, deck.chapters - 1);
-  const clearedMap = {};
-  for (let i = 1; i <= clearedCount; i += 1) {
-    clearedMap['chapter' + i] = { known: 2, reviewed: 3, ts: 1 };
-  }
-
-  await page.evaluate((payload) => {
-    localStorage.setItem(payload.key, JSON.stringify({
-      v: 1,
-      cleared: payload.cleared,
-      review: {
-        Animal: { state: 'uncertain', ts: 1 },
-        Ecosystem: { state: 'unknown', ts: 1 },
-        Plant: { state: 'uncertain', ts: 1 }
-      },
-      mastered: { Plant: { ts: 1 } },
-      progress: {}
-    }));
-  }, { key: 'fx_fc_v1:' + deck.module, cleared: clearedMap });
-  await page.reload();
-  await page.waitForSelector('.panel');
-
-  const waiting = await page.locator('.panel').first().locator('.section-row h3')
-    .allTextContents();
-  check(site + ': flagged terms appear in the waiting list',
-    waiting.includes('Animal') && waiting.includes('Ecosystem'),
-    waiting.join(','));
-  check(site + ': a term already learned is left out',
-    !waiting.includes('Plant'), waiting.join(','));
-
-  const badge = await page.locator('#site-nav .nav-badge').allTextContents();
-  check(site + ': the sidebar badge counts the terms still waiting',
-    badge.length === 1 && badge[0] === '2', badge.join(','));
-
-  /* A section with progress but not all of it is unfinished work. A
-     deck with a single chapter cannot sit in that state: it is either
-     untouched or done. */
-  const unfinished = await page.locator('.panel').nth(1).locator('.section-row h3')
-    .allTextContents();
-  if (deck.chapters > 1) {
-    check(site + ': a section with progress shows as unfinished',
-      unfinished.length > 0, unfinished.join(','));
-  } else {
-    check(site + ': a single chapter deck never shows as unfinished',
-      unfinished.length === 0, unfinished.join(','));
-  }
-
-  /* Clean up so the next site starts from an empty archive. */
-  await page.evaluate((key) => localStorage.removeItem(key), 'fx_fc_v1:' + deck.module);
-  await page.reload();
-  await page.waitForSelector('.panel');
-  check(site + ': the waiting list empties once the archive is cleared',
-    (await page.locator('#site-nav .nav-badge').count()) === 0);
-
   /* ---- scroll position is restored on the way back ----
      The shipped lists are short, so the check uses a short viewport:
      the real page then overflows and the scroll offset is genuine.
@@ -375,7 +290,299 @@ async function testSite(browser, site, expectedSubjects) {
     Math.abs(after - before) <= 2, 'before=' + before + ' after=' + after);
   await tall.close();
 
+  /* ---- the review centre is a page of its own ----
+     The review path is checked separately, in testReview(). */
+
   check(site + ': no console errors', errors.length === 0, errors.slice(0, 3).join(' | '));
+
+  await context.close();
+}
+
+/* The review path: Review -> Subject -> Section -> Review list -> Session.
+ *
+ * The checks follow the rules the review centre has to keep:
+ *
+ *   - Review is its own entry, and it is not inside the flashcards.
+ *   - Only the terms a learner flagged while learning are in the queue.
+ *   - One term is one record, however often it is flagged.
+ *   - The list is grouped by state, and the counts match the list.
+ *   - A session reveals the answer before a result can be given, saves
+ *     the result before moving on, and cannot be submitted twice.
+ *   - Every level goes back to its parent, the browser back button
+ *     walks the same path, and a deep link survives a reload.
+ */
+async function testReview(browser, site, subjectIds) {
+  console.log('\n=== ' + site + ' review centre ===');
+
+  const context = await browser.newContext({ viewport: { width: 1440, height: 950 } });
+  const page = await context.newPage();
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(String(e)));
+  page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
+
+  await page.goto(siteUrl(site, 'review.html'));
+  await page.waitForSelector('.review-tabs');
+
+  /* The decks, and the terms in them, come from the site's own
+     configuration, so the same checks run on both sites. */
+  const decks = await page.evaluate(() => {
+    var out = [];
+    (window.LH_SITE.subjects || []).forEach(function (subject) {
+      (subject.sections || []).forEach(function (section) {
+        var deck = (window.AP_MODULES || {})[section.module] || {};
+        var terms = [];
+        (deck.sections || []).forEach(function (chapter) {
+          (chapter.levels || []).forEach(function (level) {
+            (level.cards || []).forEach(function (card) { terms.push(card.term); });
+          });
+        });
+        out.push({
+          subjectId: subject.id,
+          subjectTitle: subject.title,
+          sectionId: section.id,
+          sectionTitle: section.title,
+          module: section.module,
+          storeKey: section.storeKey,
+          terms: terms
+        });
+      });
+    });
+    return out;
+  });
+
+  const deckA = decks[0];
+  const deckB = decks[1] || null;
+  const unsureTerm = deckA.terms[0];
+  const unknownTerm = deckA.terms[1];
+  const learnedTerm = deckA.terms[2];
+  const untouchedTerm = deckA.terms[3];
+
+  /* ---- the review page is its own entry ---- */
+  check(site + ': the review page shows the subjects as tabs',
+    (await page.locator('.review-tab').count()) === subjectIds.length,
+    String(await page.locator('.review-tab').count()));
+  check(site + ': the subject tabs are laid out in a row',
+    await page.evaluate(() => {
+      var tabs = Array.prototype.slice.call(document.querySelectorAll('.review-tab'));
+      if (tabs.length < 2) return true;
+      var first = tabs[0].getBoundingClientRect();
+      var second = tabs[1].getBoundingClientRect();
+      /* Side by side: the second tab starts near where the first ends. */
+      return second.left >= first.right - 2 && Math.abs(second.top - first.top) < 4;
+    }));
+  check(site + ': the review home has a way back to the overview',
+    (await page.locator('.back-icon').getAttribute('href')) === 'index.html');
+
+  const activeOnReview = await page.locator('#site-nav .nav-item.is-active')
+    .allTextContents();
+  check(site + ': Review is selected on the review page',
+    activeOnReview.length === 1 && activeOnReview[0].startsWith('Review'),
+    activeOnReview.join(','));
+
+  /* ---- an empty review queue says so, and says nothing more ---- */
+  check(site + ': an empty review queue shows a plain empty state',
+    (await page.locator('.empty strong').allTextContents()).join('') === 'All clear');
+
+  /* ---- only the flagged terms enter the queue ---- */
+  await page.evaluate((payload) => {
+    localStorage.setItem(payload.key, JSON.stringify({
+      v: 1,
+      cleared: {},
+      review: payload.review,
+      mastered: payload.mastered,
+      progress: {}
+    }));
+  }, {
+    key: 'fx_fc_v1:' + deckA.module,
+    review: {
+      [unsureTerm]: { state: 'uncertain', ts: 1700000000 },
+      [unknownTerm]: { state: 'unknown', ts: 1700000001 }
+    },
+    mastered: { [learnedTerm]: { ts: 1700000002 } }
+  });
+
+  await page.reload();
+  await page.waitForSelector('.review-tabs');
+
+  const badge = await page.locator('#site-nav .nav-badge').allTextContents();
+  check(site + ': the sidebar badge counts the terms still waiting',
+    badge.length === 1 && badge[0] === '2', badge.join(','));
+
+  const rowCount = await page.locator('.row-count').allTextContents();
+  check(site + ': the section shows how many terms are waiting',
+    rowCount.length === 1 && rowCount[0] === '02', rowCount.join(','));
+
+  /* The default subject is the one with something waiting. */
+  const activeTab = await page.locator('.review-tab.is-active .review-tab-name')
+    .allTextContents();
+  check(site + ': the subject with terms waiting is picked first',
+    activeTab.length === 1 && activeTab[0] === deckA.subjectTitle,
+    activeTab.join(','));
+
+  /* ---- picking a subject shows its sections ---- */
+  if (deckB) {
+    await page.locator('.review-tab', { hasText: deckB.subjectTitle }).click();
+    await page.waitForTimeout(200);
+    check(site + ': picking a subject keeps the page in the review path',
+      !/flashcards/.test(page.url()), page.url());
+    check(site + ': a subject with nothing waiting shows the empty state',
+      (await page.locator('.empty').count()) === 1);
+    await page.goBack();
+    await page.waitForTimeout(200);
+  }
+
+  /* ---- the review list of a section ---- */
+  await page.locator('.review-row').first().click();
+  await page.waitForSelector('.review-group');
+
+  const groups = await page.locator('.review-group-title').allTextContents();
+  check(site + ': the list is grouped by review state',
+    groups.join('|') === 'Needs practice|Still learning|Mastered', groups.join('|'));
+
+  const practice = await page.locator('.review-group').nth(0)
+    .locator('.review-term-text').allTextContents();
+  const learning = await page.locator('.review-group').nth(1)
+    .locator('.review-term-text').allTextContents();
+  const mastered = await page.locator('.review-mastered .review-term-text')
+    .allTextContents();
+
+  check(site + ': a term marked unknown needs practice',
+    practice.join(',') === unknownTerm, practice.join(','));
+  check(site + ': a term marked unsure is still learning',
+    learning.join(',') === unsureTerm, learning.join(','));
+  check(site + ': a term already learned is kept apart from the queue',
+    mastered.join(',') === learnedTerm, mastered.join(','));
+  check(site + ': a term that was never flagged is not in the list',
+    !practice.includes(untouchedTerm) && !learning.includes(untouchedTerm) &&
+    !mastered.includes(untouchedTerm));
+
+  /* The mastered group is folded away until it is asked for. */
+  check(site + ': the mastered group starts folded',
+    !(await page.locator('.review-mastered').evaluate((n) => n.open)));
+
+  /* The way back from a section goes to the subject, not to the cards. */
+  check(site + ': the review list goes back to its subject',
+    /subject=/.test(await page.locator('.back-icon').getAttribute('href')) &&
+    !/flashcards/.test(await page.locator('.back-icon').getAttribute('href')));
+
+  /* ---- one term is one record ---- */
+  await page.evaluate((payload) => {
+    var raw = JSON.parse(localStorage.getItem(payload.key));
+    raw.review[payload.term] = { state: 'unknown', ts: 1700000900 };
+    localStorage.setItem(payload.key, JSON.stringify(raw));
+  }, { key: 'fx_fc_v1:' + deckA.module, term: unsureTerm });
+  await page.reload();
+  await page.waitForSelector('.review-group');
+
+  const afterReflag = await page.locator('.review-term-text').allTextContents();
+  const duplicates = afterReflag.filter((t, i) => afterReflag.indexOf(t) !== i);
+  check(site + ': flagging a term again does not add a second record',
+    duplicates.length === 0, duplicates.join(','));
+  const badgeAfter = await page.locator('#site-nav .nav-badge').allTextContents();
+  check(site + ': the count still counts each term once',
+    badgeAfter.length === 1 && badgeAfter[0] === '2', badgeAfter.join(','));
+
+  /* ---- a session ---- */
+  await page.locator('.review-start').click();
+  await page.waitForSelector('.rs-term');
+
+  check(site + ': a result cannot be given before the answer is revealed',
+    (await page.locator('.rs-results').count()) === 0);
+  check(site + ': the session shows how far along the round is',
+    /^\d{2} \/ \d{2}$/.test((await page.locator('#rsProgress').textContent()) || ''),
+    await page.locator('#rsProgress').textContent());
+
+  await page.locator('#rsReveal').click();
+  await page.waitForSelector('.rs-results');
+  check(site + ': the answer is shown once it has been asked for',
+    ((await page.locator('.rs-definition').textContent()) || '').length > 0);
+
+  /* Two clicks in a row must not carry on into the next card. */
+  const termBefore = await page.locator('.rs-term').textContent();
+  await page.locator('.rs-unsure').click();
+  await page.locator('.rs-unsure').click({ force: true }).catch(() => {});
+  await page.waitForTimeout(250);
+  const progressAfterDouble = await page.locator('#rsProgress').textContent();
+  check(site + ': a second click does not submit the same card twice',
+    progressAfterDouble === '02 / 02', progressAfterDouble);
+  check(site + ': the round moved on to the next term',
+    (await page.locator('.rs-term').textContent()) !== termBefore ||
+    (await page.locator('.rs-done').count()) === 1);
+
+  /* The result is kept, and the term is still waiting. */
+  await page.waitForTimeout(500);
+  await page.locator('#rsReveal').click();
+  await page.waitForSelector('.rs-results');
+  await page.locator('.rs-again').click();
+  await page.waitForTimeout(500);
+
+  const afterRound = await page.evaluate((payload) => {
+    var raw = JSON.parse(localStorage.getItem(payload.key) || 'null');
+    return raw ? Object.keys(raw.review || {}).length : 0;
+  }, { key: 'fx_fc_v1:' + deckA.module });
+  check(site + ': the old archive is not emptied by a session',
+    afterRound >= 2, String(afterRound));
+
+  /* The round ends on the completion page and goes back to the section.
+     A term marked "again" comes back later in the same round, so the
+     round is walked until it is really over. */
+  for (let step = 0; step < 4; step += 1) {
+    if ((await page.locator('.rs-done').count()) === 1) break;
+    if ((await page.locator('#rsReveal').count()) !== 1) break;
+    await page.locator('#rsReveal').click();
+    await page.waitForSelector('.rs-results');
+    await page.waitForTimeout(500);
+    await page.locator('.rs-again').click();
+    await page.waitForTimeout(500);
+  }
+  check(site + ': the round ends on a completion page',
+    (await page.locator('.rs-done').count()) === 1);
+  check(site + ': the completion page reports the round',
+    /^\d+ \/ \d+$/.test((await page.locator('.rs-done-count').textContent()) || ''),
+    await page.locator('.rs-done-count').textContent());
+
+  await page.locator('.rs-done .rs-primary').click();
+  await page.waitForSelector('.review-group');
+  check(site + ': the round goes back to the section it came from',
+    /review\.html/.test(page.url()) && /section=/.test(page.url()), page.url());
+
+  const stillWaiting = await page.locator('.review-term-text').allTextContents();
+  check(site + ': finishing a round does not clear the terms that are not mastered',
+    stillWaiting.length >= 2, stillWaiting.join(','));
+
+  /* ---- the state survives a reload ---- */
+  await page.reload();
+  await page.waitForSelector('.review-group');
+  const afterReload = await page.locator('.review-term-text').allTextContents();
+  check(site + ': the review state is still there after a reload',
+    afterReload.length >= 2, afterReload.join(','));
+
+  /* ---- a deep link opened on its own ---- */
+  const deep = await context.newPage();
+  await deep.goto(siteUrl(site, 'review.html?subject=' + deckA.subjectId +
+    '&section=' + deckA.sectionId));
+  await deep.waitForSelector('.review-group');
+  check(site + ': a deep link opens the review list on its own',
+    (await deep.locator('.review-group').count()) >= 1);
+  check(site + ': a deep link keeps the terms of its own section',
+    (await deep.locator('.review-term-text').count()) >= 2);
+  await deep.close();
+
+  /* ---- learning and review do not share a state ---- */
+  await page.goto(siteUrl(site, 'flashcards.html?m=' + deckA.module));
+  await page.waitForSelector('#startBtn');
+  check(site + ': the flashcards page carries no review list',
+    (await page.locator('#reviewView').count()) === 0 &&
+    (await page.locator('#reviewStatBtn').count()) === 0 &&
+    (await page.locator('#levelsReviewBtn').count()) === 0);
+  await page.goto(siteUrl(site, 'subject.html?subject=' + deckA.subjectId));
+  await page.waitForSelector('.section-row');
+  check(site + ': the subject page still leads to the flashcards',
+    /^flashcards\.html\?m=/.test(
+      await page.locator('.section-row a.icon-cta').first().getAttribute('href')));
+
+  check(site + ': the review centre raised no console errors',
+    errors.length === 0, errors.slice(0, 3).join(' | '));
 
   await context.close();
 }
@@ -393,7 +600,9 @@ async function testSite(browser, site, expectedSubjects) {
 
   try {
     await testSite(browser, 'ap', ['Science', 'Social Science']);
+    await testReview(browser, 'ap', ['science', 'social-science']);
     await testSite(browser, 'ad', ['Art History']);
+    await testReview(browser, 'ad', ['art-history']);
   } finally {
     await browser.close();
   }

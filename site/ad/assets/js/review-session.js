@@ -187,10 +187,10 @@
     }
 
     var card = el('div', 'rs-card');
-    /* The card follows the flashcard game: the term is on the front
-       and the meaning is revealed. The learner reads a term and
-       recalls what it means, which is the same act the flashcards
-       ask for, so the two paths train the same thing. */
+    /* The card follows the iteration spec: the term is on the front
+       and the meaning is revealed on request. This is the opposite
+       way round from the flashcard game, which keeps its original
+       meaning-first face — the flashcards are left untouched. */
     card.appendChild(el('p', 'rs-prompt', record.term));
 
     var answerBox = el('div', 'rs-answer');

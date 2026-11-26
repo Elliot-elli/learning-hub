@@ -270,14 +270,23 @@ Review ：Review → Subject → Section → Review list → Review session
 - 固定父级返回：Review 首页 → Overview；学科页 → Review 首页；
   Section 清单 → 该学科页；复习轮次 → 该 Section 清单。
 
-**卡面朝向：正面术语、背面释义**（AP / AD 一致，学习与复习同向）。
+**卡面朝向：闪卡不动，复习按 §4.4 单独做**（2026-11-26 定稿）。
 
-- 闪卡页：正面 `term`（大字），翻面 `definition`（小字，带长文降档）。
-  引擎用常量 `TERM_FRONT` 控制；样式表靠 body 上的 `.term-front` 把两面的字号对调。
-  题库内容、队列算法、翻卡动画、进度存档、`storeKey` 全部未动，
-  改回旧朝向只需把 `TERM_FRONT` 改成 `false`。
+| | 正面 | 背面 / 揭晓 |
+|---|---|---|
+| 闪卡页 | 释义 `definition` | 术语 `term`（翻面才看到） |
+| 复习轮次 | 术语 `term` | 释义 `definition`（`Reveal answer` 后） |
+
+- 闪卡页**保持产品原样**：`assets/js/engine.js` 与 `assets/css/theme-flashcards.css`
+  字节未动，摘要 `59d1293e…`（与朝向试验之前逐字节一致）。
+  中间试过把闪卡改成「正面术语、背面释义」，现已整体回滚 ——
+  `TERM_FRONT` 常量与 `body.term-front` 覆盖块均已不存在。
 - 复习轮次按迭代文档 §4.4 图示：正面显示术语，点 `Reveal answer` 后显示释义。
-- 学习时「看术语想意思」，复习时「看术语想意思」—— 两条路径训练同一件事。
+  它不依赖引擎朝向：读 `review-store.js` 的 `definition(term)`，自己决定正反两面。
+- ⚠️ 两条路径**方向相反**。改一侧不会波及另一侧，但也不要指望它们一起变。
+- 两条断言各自**对照题库数据**校验（正面必须等于某张卡的 definition，
+  翻转后必须等于同一张卡的 term），互不遮蔽 —— 已用「故意改坏引擎」验证过：
+  闪卡断言如期 FAIL，复习断言仍为 ok。
 - 现状题库是测试内容（后续会导入完整全科题库），不据此推断字段语义。
 
 **一处被测试漏掉的真 bug**：翻面揭晓后，答案框始终是隐藏的 ——

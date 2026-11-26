@@ -227,16 +227,34 @@ async function testSite(browser, site, expectedSubjects) {
   const front = await page.locator('#frontText').textContent();
   check(site + ': a card renders', !!(front && front.trim().length), (front || '').slice(0, 40));
 
-  /* The card faces the reader with the term and turns over to the
-     definition. The engine writes the two into different faces, so
-     both are read after a flip. */
-  const gameTerm = (await page.locator('#frontText').textContent() || '').trim();
+  /* The flashcard keeps its original orientation: the meaning on the
+     front, the term on the back. The engine writes the two into
+     different faces, so both are read after a flip.
+
+     The check resolves the two faces against the deck data: the front
+     must be some card's definition and the back must be that same
+     card's term. Comparing the two strings to each other would pass
+     even if the faces swapped roles. */
+  const gameDefinition = (await page.locator('#frontText').textContent() || '').trim();
   await page.locator('#flashcard').click();
   await page.waitForTimeout(800);
-  const gameDefinition = (await page.locator('#backText').textContent() || '').trim();
-  check(site + ': the flashcard shows the term first and the meaning on the back',
-    gameTerm.length > 0 && gameDefinition.length > 0 &&
-    gameTerm !== gameDefinition, gameTerm.slice(0, 30) + ' | ' + gameDefinition.slice(0, 30));
+  const gameTerm = (await page.locator('#backText').textContent() || '').trim();
+  const gameFaces = await page.evaluate((faces) => {
+    var mod = window.AP_MODULES || {};
+    var s = window.LH_SITE.subjects[0].sections[0];
+    var deck = mod[s.module];
+    var cards = [];
+    deck.sections.forEach(function (c) {
+      c.levels.forEach(function (l) { cards = cards.concat(l.cards); });
+    });
+    var match = cards.filter(function (card) {
+      return card.definition === faces.definition;
+    });
+    return { hits: match.length, term: match.length ? match[0].term : null };
+  }, { definition: gameDefinition, term: gameTerm });
+  check(site + ': the flashcard shows the meaning first and the term on the back',
+    gameFaces.hits === 1 && gameFaces.term === gameTerm,
+    gameDefinition.slice(0, 30) + ' | ' + gameTerm.slice(0, 30));
   await page.locator('#flashcard').click();
   await page.waitForTimeout(800);
 
@@ -518,13 +536,30 @@ async function testReview(browser, site, subjectIds) {
   check(site + ': the answer is actually visible after the reveal',
     await page.locator('.rs-answer-text').first().isVisible());
 
-  /* The card follows the flashcard game: the term on the front, the
-     meaning revealed on request. */
+  /* The review card follows the iteration spec: the term on the front,
+     the meaning revealed on request. That is the opposite way round
+     from the flashcard game, which keeps its meaning-first face.
+
+     The check resolves both faces against the deck data: the prompt
+     must be a card's term and the answer must be that same card's
+     definition. Comparing the two strings to each other would pass
+     even if they swapped roles. */
   const prompt = await page.locator('.rs-prompt').textContent();
   const revealed = await page.locator('.rs-answer-text').textContent();
-  check(site + ': the card shows the term and reveals the meaning',
-    (prompt || '').length > 0 && (revealed || '').length > 0 &&
-    prompt.trim() !== revealed.trim());
+  const sessionFaces = await page.evaluate((faces) => {
+    var mod = window.AP_MODULES || {};
+    var s = window.LH_SITE.subjects[0].sections[0];
+    var deck = mod[s.module];
+    var cards = [];
+    deck.sections.forEach(function (c) {
+      c.levels.forEach(function (l) { cards = cards.concat(l.cards); });
+    });
+    var match = cards.filter(function (card) { return card.term === faces.prompt; });
+    return { hits: match.length, definition: match.length ? match[0].definition : null };
+  }, { prompt: (prompt || '').trim(), revealed: (revealed || '').trim() });
+  check(site + ': the review card shows the term and reveals the meaning',
+    sessionFaces.hits === 1 && sessionFaces.definition === (revealed || '').trim(),
+    (prompt || '').slice(0, 30) + ' | ' + (revealed || '').slice(0, 30));
 
   /* Two clicks in a row must not carry on into the next card. */
   const termBefore = await page.locator('.rs-prompt').textContent();

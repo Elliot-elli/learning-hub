@@ -1,7 +1,7 @@
 {
   "note": "游戏资产基线：这些文件由游戏生成技能产出，学习站整合不得改动。改一个就重算 sha256 并说明原因。",
   "files": {
-    "assets/js/engine.js": "f27408207f0d4be90b6fbd7ea57b9dbe69f2e75c334d2cfa909d8d0e86b08893",
+    "assets/js/engine.js": "59d1293e18a408f318d0980f65c0bfbcaa7bf85030442fa19ebde8013ebc465b",
     "assets/css/flashcards.css": "33dc9a2644103ed70c1c42bc59d208d2a0d1a040638b4b59e60571ddfde39df3"
   },
   "history": [
@@ -14,8 +14,14 @@
     {
       "file": "assets/js/engine.js",
       "changed": "2026-11-26",
-      "reason": "卡面朝向改为「正面术语、背面释义」（AP / AD 一致）：新增常量 TERM_FRONT，朝上的一面写 term、翻面才看到的一面写 definition；字号自适应改为跟着内容走（释义长文降档、术语短词不降档），并给 body 加 .term-front 供样式表对调两面的字号。题库内容、队列算法、翻卡动画、进度存档、storeKey 未动。翻回旧朝向只需把 TERM_FRONT 改成 false。",
+      "reason": "卡面朝向试验：新增常量 TERM_FRONT，朝上的一面写 term、翻面才看到的一面写 definition；字号自适应改为跟着内容走（释义长文降档、术语短词不降档），并给 body 加 .term-front 供样式表对调两面的字号。",
       "digest": "f27408207f0d4be90b6fbd7ea57b9dbe69f2e75c334d2cfa909d8d0e86b08893"
+    },
+    {
+      "file": "assets/js/engine.js",
+      "changed": "2026-11-26",
+      "reason": "回滚上面的朝向试验：闪卡恢复原朝向（正面释义、背面术语），引擎字节与 Review Center 重构之后、朝向试验之前完全一致（digest 与第一条 history 相同）。朝向试验同时改动过 assets/css/theme-flashcards.css（新增 body.term-front 覆盖块），该文件一并回滚到实验前状态。复习板块不依赖引擎朝向，按迭代文档 §4.4 单独实现（正面术语、Reveal answer 出释义），故不受影响。",
+      "digest": "59d1293e18a408f318d0980f65c0bfbcaa7bf85030442fa19ebde8013ebc465b"
     }
   ]
 }

@@ -568,7 +568,42 @@ async function testReview(browser, site, subjectIds) {
     (await deep.locator('.review-term-text').count()) >= 2);
   await deep.close();
 
+  /* ---- quick clicks must not leave the page broken ---- */
+  await page.goto(siteUrl(site, 'review.html'));
+  await page.waitForSelector('.review-row');
+  for (let i = 0; i < 3; i += 1) {
+    await page.locator('.review-row').first().click({ force: true }).catch(() => {});
+  }
+  await page.waitForTimeout(300);
+  const quickText = await page.locator('body').innerText();
+  check(site + ': quick clicks leave the review path readable',
+    quickText.trim().length > 0 && (await page.locator('.review-group').count()) >= 1,
+    page.url());
+  check(site + ': quick clicks do not pile up the query string',
+    (page.url().match(/section=/g) || []).length === 1, page.url());
+
   /* ---- learning and review do not share a state ---- */
+  await page.goto(siteUrl(site, 'review.html'));
+  await page.waitForSelector('.review-row');
+  await page.locator('.review-row').first().click();
+  await page.waitForSelector('.review-group');
+  const reviewUrl = page.url();
+  const before = await page.locator('.review-term-text').allTextContents();
+
+  await page.goto(siteUrl(site, 'subject.html?subject=' + deckA.subjectId));
+  await page.waitForSelector('.section-row');
+  await page.locator('.section-row a.icon-cta').first().click();
+  await page.waitForSelector('#startBtn');
+  await page.goBack();
+  await page.waitForSelector('.section-row');
+
+  await page.goto(reviewUrl);
+  await page.waitForSelector('.review-group');
+  const after = await page.locator('.review-term-text').allTextContents();
+  check(site + ': the review list is the same after a trip through learning',
+    before.join(',') === after.join(','),
+    before.join(',') + ' vs ' + after.join(','));
+
   await page.goto(siteUrl(site, 'flashcards.html?m=' + deckA.module));
   await page.waitForSelector('#startBtn');
   check(site + ': the flashcards page carries no review list',

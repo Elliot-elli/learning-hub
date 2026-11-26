@@ -187,13 +187,18 @@
     }
 
     var card = el('div', 'rs-card');
-    card.appendChild(el('p', 'rs-term', record.term));
+    /* The card is shown the way the game shows it: the definition on
+       the front, the term on the back. The learner recalls the term
+       from the definition, which is the same act the flashcard game
+       asks for. Showing the term first would only ask the learner to
+       recognise what they already know. */
+    var definition = store.definition(route.subject, route.section, record.term);
+    card.appendChild(el('p', 'rs-prompt', definition || 'No definition on file.'));
 
     var answerBox = el('div', 'rs-answer');
     answerBox.id = 'rsAnswer';
     answerBox.hidden = true;
-    var definition = store.definition(route.subject, route.section, record.term);
-    answerBox.appendChild(el('p', 'rs-definition', definition || 'No definition on file.'));
+    answerBox.appendChild(el('p', 'rs-term', record.term));
     card.appendChild(answerBox);
     stage.appendChild(card);
 

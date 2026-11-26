@@ -137,6 +137,12 @@
   margin:0;font-size:clamp(1.55rem,4vw,2.6rem);font-weight:800;
   letter-spacing:-.03em;line-height:1.15;overflow-wrap:anywhere;
 }
+/* The prompt is the card front: the definition the term is recalled
+   from, exactly as the flashcard game shows it. */
+.rs-prompt{
+  margin:0;font-size:clamp(1rem,1.7vw,1.28rem);line-height:1.7;
+  color:var(--ink);overflow-wrap:anywhere;
+}
 .rs-answer{
   width:100%;padding-top:18px;border-top:1px solid var(--line);
   animation:rs-in .22s ease;
@@ -145,7 +151,6 @@
   from{opacity:0;transform:translateY(6px)}
   to{opacity:1;transform:none}
 }
-.rs-definition{margin:0;font-size:clamp(.95rem,1.3vw,1.08rem);line-height:1.7;color:var(--ink-soft)}
 .rs-actions{
   display:flex;justify-content:center;align-items:center;gap:10px;
   flex-wrap:wrap;min-height:52px;

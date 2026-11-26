@@ -484,7 +484,7 @@ async function testReview(browser, site, subjectIds) {
 
   /* ---- a session ---- */
   await page.locator('.review-start').click();
-  await page.waitForSelector('.rs-term');
+  await page.waitForSelector('.rs-prompt');
 
   check(site + ': a result cannot be given before the answer is revealed',
     (await page.locator('.rs-results').count()) === 0);
@@ -495,7 +495,15 @@ async function testReview(browser, site, subjectIds) {
   await page.locator('#rsReveal').click();
   await page.waitForSelector('.rs-results');
   check(site + ': the answer is shown once it has been asked for',
-    ((await page.locator('.rs-definition').textContent()) || '').length > 0);
+    ((await page.locator('.rs-term').textContent()) || '').length > 0);
+
+  /* The card asks for the term, the way the flashcard game does: the
+     definition is on the front, the term on the back. */
+  const prompt = await page.locator('.rs-prompt').textContent();
+  const revealed = await page.locator('.rs-term').textContent();
+  check(site + ': the card shows the definition and reveals the term',
+    (prompt || '').length > 0 && (revealed || '').length > 0 &&
+    prompt.trim() !== revealed.trim());
 
   /* Two clicks in a row must not carry on into the next card. */
   const termBefore = await page.locator('.rs-term').textContent();

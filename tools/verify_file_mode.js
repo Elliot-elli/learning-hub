@@ -128,7 +128,7 @@ function url(site, file) {
       (await page.locator('.review-term').count()) === 1);
 
     await page.locator('.review-term').first().click();
-    await page.waitForSelector('.rs-term');
+    await page.waitForSelector('.rs-prompt');
     check(site + ': a review round opens from disk',
       ((await page.locator('.rs-term').textContent()) || '').length > 0);
     await page.locator('#rsReveal').click();

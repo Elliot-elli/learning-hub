@@ -133,15 +133,15 @@
   background:var(--surface);border-radius:var(--radius-lg);
   box-shadow:var(--shadow-pop);
 }
-.rs-term{
+/* The prompt is the term: the thing the learner recalls the meaning of.
+   Same direction as the flashcard game. */
+.rs-prompt{
   margin:0;font-size:clamp(1.55rem,4vw,2.6rem);font-weight:800;
   letter-spacing:-.03em;line-height:1.15;overflow-wrap:anywhere;
 }
-/* The prompt is the card front: the definition the term is recalled
-   from, exactly as the flashcard game shows it. */
-.rs-prompt{
-  margin:0;font-size:clamp(1rem,1.7vw,1.28rem);line-height:1.7;
-  color:var(--ink);overflow-wrap:anywhere;
+/* The answer is the definition, revealed on request. */
+.rs-answer-text{
+  margin:0;font-size:clamp(.95rem,1.3vw,1.08rem);line-height:1.7;color:var(--ink-soft);
 }
 .rs-answer{
   width:100%;padding-top:18px;border-top:1px solid var(--line);

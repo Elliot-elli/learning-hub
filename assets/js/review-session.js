@@ -187,18 +187,20 @@
     }
 
     var card = el('div', 'rs-card');
-    /* The card is shown the way the game shows it: the definition on
-       the front, the term on the back. The learner recalls the term
-       from the definition, which is the same act the flashcard game
-       asks for. Showing the term first would only ask the learner to
-       recognise what they already know. */
-    var definition = store.definition(route.subject, route.section, record.term);
-    card.appendChild(el('p', 'rs-prompt', definition || 'No definition on file.'));
+    /* The card follows the flashcard game: the term is on the front
+       and the meaning is revealed. The learner reads a term and
+       recalls what it means, which is the same act the flashcards
+       ask for, so the two paths train the same thing. */
+    card.appendChild(el('p', 'rs-prompt', record.term));
 
     var answerBox = el('div', 'rs-answer');
     answerBox.id = 'rsAnswer';
-    answerBox.hidden = true;
-    answerBox.appendChild(el('p', 'rs-term', record.term));
+    /* The answer box is only shown once it has been asked for. The
+       state decides, not the click: the card is rebuilt on every
+       render, so the flag has to carry the answer across. */
+    answerBox.hidden = !state.revealed;
+    var definition = store.definition(route.subject, route.section, record.term);
+    answerBox.appendChild(el('p', 'rs-answer-text', definition || 'No definition on file.'));
     card.appendChild(answerBox);
     stage.appendChild(card);
 
@@ -240,8 +242,6 @@
   function reveal() {
     if (!state || state.revealed || state.busy) return;
     state.revealed = true;
-    var answer = document.getElementById('rsAnswer');
-    if (answer) answer.hidden = false;
     renderCard();
   }
 

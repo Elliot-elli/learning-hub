@@ -130,7 +130,7 @@ function url(site, file) {
     await page.locator('.review-term').first().click();
     await page.waitForSelector('.rs-prompt');
     check(site + ': a review round opens from disk',
-      ((await page.locator('.rs-term').textContent()) || '').length > 0);
+      ((await page.locator('.rs-prompt').textContent()) || '').length > 0);
     await page.locator('#rsReveal').click();
     await page.waitForSelector('.rs-results');
     check(site + ': the answer can be revealed from disk',

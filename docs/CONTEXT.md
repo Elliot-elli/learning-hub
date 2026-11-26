@@ -29,6 +29,9 @@
    Section 点击**直接开 Flashcards**，没有活动选择页。
 6. **返回控件一律纯图标**（箭头 SVG），不附文字；`aria-label` 留给读屏。
 7. **Review 是独立路径**（2026-11-26 重构）：
+8. **卡面朝向：正面术语、背面释义**（2026-11-26，AP / AD 一致）——
+   闪卡页正面是术语、翻面是释义；复习轮次正面是术语、`Reveal answer` 后是释义。
+   学习与复习同向。引擎里由常量 `TERM_FRONT` 控制，样式表靠 body 的 `.term-front` 对调两面字号。
    `Review(review.html) → Subject → Section → Review list → Review session(review-session.html)`。
    闪卡页里**不再有复习清单**，两条路径共用术语数据但互不嵌套。
 
@@ -76,6 +79,13 @@ sha256 基线在 `tools/game-baseline.json`，校验脚本会逐份比对。
 
 - 章节编号**全局按牌组顺序** `chapter1`、`chapter2`……，**不是** `2.1` / `2.2`。
 - 三个 storeKey 与 v2 逐字符相同 → v2 时期学生的复习进度直接可用。
+
+**卡面朝向**（2026-11-26 定）：闪卡样式表原本把「正面」定成小字正文、「背面」定成大字标题，
+因为答案曾经朝后。改成正面术语后，两面的字号必须对调：
+`theme-flashcards.css` 里用 `body.term-front .card-front p` / `.card-back p` 覆盖，
+释义那一面还要补 `is-long` / `is-verylong` 的降档规则。
+引擎的字号自适应也跟着**内容**走（释义长文降档、术语短词不降档），不跟「面」走。
+改回旧朝向：把 `engine.js` 的 `TERM_FRONT` 改成 `false` 即可。
 
 **复习存档（新增，2026-11-26）**：
 

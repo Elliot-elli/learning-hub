@@ -134,7 +134,8 @@
   box-shadow:var(--shadow-pop);
 }
 /* The prompt is the term: the thing the learner recalls the meaning of.
-   Same direction as the flashcard game. */
+   This follows the iteration spec and is the opposite way round from
+   the flashcard game, which keeps its meaning-first face. */
 .rs-prompt{
   margin:0;font-size:clamp(1.55rem,4vw,2.6rem);font-weight:800;
   letter-spacing:-.03em;line-height:1.15;overflow-wrap:anywhere;

@@ -15,7 +15,7 @@
 
 
   const copy = Object.assign({
-    hintBefore: 'Choose a state after you reveal the definition.',
+    hintBefore: 'Choose a state after you reveal the term.',
     hintAfter: 'Take your time, then continue when ready.'
   }, MOD.copy || {});
 
@@ -116,25 +116,6 @@
   const backText = $('backText');
   const levelsBody = $('levelsBody');
 
-  // ---- 卡面朝向 ----
-  // true = 正面术语、背面释义；false = 正面释义、背面术语。
-  // 复习轮次用同一个朝向（正面术语、Reveal 出释义），
-  // 学习与复习看到的是同一种卡，方向一致。
-  //
-  // 哪一面朝上由 CSS 决定（.card-front 是朝上的那一面），
-  // 所以这里只换「哪段文字写进哪一面」，不换 DOM 顺序。
-  const TERM_FRONT = true;
-
-  // 要回忆的那一面，与翻面才看到的那一面。
-  const faceUp = frontText;
-  const faceDown = backText;
-
-  // 字号自适应跟着「内容」走，不跟着「面」走：
-  // 释义是长文，需要降档；术语是短词，只要不溢出。
-  const definitionText = TERM_FRONT ? backText : frontText;
-  const definitionFace = definitionText.parentNode;
-  const termText = TERM_FRONT ? frontText : backText;
-
   function showView(view){
     [welcomeView, levelsView, gameView, summaryView].forEach(v => v.classList.remove('active'));
     view.classList.add('active');
@@ -230,12 +211,12 @@
   function render(){
     if(state.phase !== phase.PLAYING) return;
     const card = currentCard();
-    // 正面是朝上的一面（TERM_FRONT 时是术语），换卡回正动画的起点即可写入：
+    // 正面是题目侧（definition），不是答案，换卡回正动画的起点即可写入：
     // 正面在 rotateY 超过 90° 之后才可见，提前写入不会泄露任何答案。
-    faceUp.textContent = TERM_FRONT ? card.term : card.definition;
-    // 背面是翻面才看到的一面，换卡回正过程中必须冻结并保持空白，
-    // 否则新卡的答案会在旋转前半程透出（背面正朝向观察者）。
-    if(!state.swapping) faceDown.textContent = TERM_FRONT ? card.definition : card.term;
+    frontText.textContent = card.definition;
+    // 背面是答案侧（term），换卡回正过程中必须冻结并保持空白，
+    // 否则新卡的 term 会在旋转前半程透出（背面正朝向观察者）。
+    if(!state.swapping) backText.textContent = card.term;
     // 清掉上一张残留的行内字号，否则新卡会继承旧卡的缩小值
     frontText.style.fontSize = '';
     backText.style.fontSize = '';
@@ -292,7 +273,7 @@
     state.transitioning = true;
     state.flipped = false;
     state.awaitingNext = false;
-    // 阶段1：翻回正面，背面保持清空、正面立即就位（render 写入新卡术语）
+    // 阶段1：翻回正面，背面保持清空、正面立即就位（render 写入新卡释义）
     state.swapping = true;
     backText.textContent = '';
     render();
@@ -322,7 +303,7 @@
         state.pendingId = null;
         state.pendingState = null;
         if(state.known === deck.length){ state.transitioning = false; finish(); return; }
-        // 阶段1：翻回正面，背面保持清空、正面立即就位（render 写入新卡术语）
+        // 阶段1：翻回正面，背面保持清空、正面立即就位（render 写入新卡释义）
         state.flipped = false;
         state.swapping = true;
         backText.textContent = '';
@@ -501,18 +482,18 @@
     return true;
   }
   /*释义溢出判定：必须用几何测量，不能用 scrollHeight。
-     卡面是 display:flex;align-items:center，内容装不下时上下同时溢出，
+     .card-front 是 display:flex;align-items:center，内容装不下时上下同时溢出，
      而 scrollHeight 只统计块向末端（下）的溢出 —— 上半侧完全测不到。
      实测：子元素 330px / 可用 210px，真实溢出 120px（上下各 60），
      scrollHeight 只报 60；溢出 1px 时 339 > 338+1 亦为假，直接漏判。
      正确口径：拿文字外框与卡面「内容盒」比，四个方向都算。 */
   function definitionOverflows(face){
-    return textOverflows(face, definitionText);
+    return textOverflows(face, frontText);
   }
-  /* 行内缩放下限：释义 12.8px（= 0.8rem，is-verylong 档同值）、术语 13px。
+  /* 行内缩放下限：正面 12.8px（= 0.8rem，is-verylong 档同值）、背面 13px。
      再小就读不清了；缩到下限仍装不下就裁掉（铁律：溢出宁裁不滚）。 */
-  const FIT_MIN_DEFINITION = 12.8;
-  const FIT_MIN_TERM = 13;
+  const FIT_MIN_FRONT = 12.8;
+  const FIT_MIN_BACK = 13;
   /* 文字块是否超出卡面内容盒：用布局尺寸（offsetHeight / clientHeight）。
      卡面在 3D 容器里带 rotateY(180deg)，翻转动画进行中 getBoundingClientRect
      读到的是透视畸变后的框，尺寸随相位抖动；布局尺寸与变换无关。
@@ -524,7 +505,7 @@
     return kid.offsetHeight > avail + 0.5;
   }
   /* 连续缩放：装不下就逐 px 缩，缩到装得下为止。
-     从当前计算字号起缩（释义此时已套上 is-long / is-verylong），不重置 class。 */
+     从当前计算字号起缩（正面此时已套上 is-long / is-verylong），不重置 class。 */
   function shrinkToFit(face, kid, minPx){
     if(!face || !kid) return;
     let size = parseFloat(getComputedStyle(kid).fontSize);
@@ -536,7 +517,7 @@
   }
   // ---- 释义自适应缩放：装不下时逐档降字号，保证不溢出卡面 ----
   function fitDefinition(){
-    const face = definitionFace;
+    const face = frontText.parentNode;
     if(!face) return;
     face.classList.remove('is-long', 'is-verylong');
     if(!definitionOverflows(face)) return;
@@ -544,12 +525,12 @@
     void face.offsetHeight;              // 强制重排，让下一行读到降档后的真实高度
     if(definitionOverflows(face)) face.classList.add('is-verylong');
   }
-  /* 连续细调：释义那一面 class 粗调之后再缩 1~2px；术语没有 class，直接从基准连续缩。
-     换卡期空内容不缩。 */
+  /* 连续细调：正面 class 粗调之后再缩 1~2px；背面没有 class，直接从基准连续缩。
+     换卡期背面文字为空，空内容不缩。 */
   function fitText(){
-    shrinkToFit(definitionFace, definitionText, FIT_MIN_DEFINITION);
-    if(termText.textContent.trim()){
-      shrinkToFit(termText.parentNode, termText, FIT_MIN_TERM);
+    shrinkToFit(frontText.parentNode, frontText, FIT_MIN_FRONT);
+    if(backText.textContent.trim()){
+      shrinkToFit(backText.parentNode, backText, FIT_MIN_BACK);
     }
   }
   // ---- 待复查词表：本次（内存 state.flags）与历史累计（localStorage store.review） ----
@@ -630,8 +611,6 @@
   }
 
   // ---- boot ----
-  // 朝向写在 body 上，样式表据此把两面的字号对调。
-  if (TERM_FRONT) document.body.classList.add('term-front');
   loadStore();
   migrateLegacyIds();
   refreshHome();

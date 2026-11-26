@@ -88,6 +88,53 @@ function url(site, file) {
     const cleared = await page.locator('.stat-tile .tile-value').nth(2).textContent();
     check(site + ': the dashboard reads the progress written by the game',
       /[1-9]/.test(cleared || ''), 'cleared=' + cleared);
+
+    /* ---- the review path works from disk too ---- */
+    await page.goto(url(site, 'review.html'));
+    await page.waitForSelector('.review-tabs');
+    check(site + ': the review centre renders from disk',
+      (await page.locator('.review-tab').count()) > 0);
+
+    /* Flag a term the way the game does, then check it turns up in the
+       review list of its own section. */
+    await page.evaluate(() => {
+      var site = window.LH_SITE;
+      var section = site.subjects[0].sections[0];
+      var deck = (window.AP_MODULES || {})[section.module];
+      var term = '';
+      if (deck) {
+        deck.sections.forEach(function (chapter) {
+          chapter.levels.forEach(function (level) {
+            if (!term && level.cards.length) term = level.cards[0].term;
+          });
+        });
+      }
+      localStorage.setItem(section.storeKey, JSON.stringify({
+        v: 1,
+        cleared: {},
+        progress: {},
+        review: term ? { [term]: { state: 'uncertain', ts: 1700000000 } } : {},
+        mastered: {}
+      }));
+    });
+    await page.reload();
+    await page.waitForSelector('.review-row');
+    check(site + ': a flagged term shows up in the review list from disk',
+      (await page.locator('.row-count').count()) === 1);
+
+    await page.locator('.review-row').first().click();
+    await page.waitForSelector('.review-group');
+    check(site + ': the review list opens from disk',
+      (await page.locator('.review-term').count()) === 1);
+
+    await page.locator('.review-term').first().click();
+    await page.waitForSelector('.rs-term');
+    check(site + ': a review round opens from disk',
+      ((await page.locator('.rs-term').textContent()) || '').length > 0);
+    await page.locator('#rsReveal').click();
+    await page.waitForSelector('.rs-results');
+    check(site + ': the answer can be revealed from disk',
+      (await page.locator('.rs-results').count()) === 1);
   }
 
   check('no console errors', errors.length === 0, errors.slice(0, 3).join(' | '));

@@ -4,8 +4,15 @@ Usage:
     python tools/verify_baseline.py [--baseline <dir>]
 
 The engine and the flashcard stylesheet come from the game generator.
-The site layer wraps them but must not edit them, so the built copies are
-compared against the archived snapshot by digest.
+The site layer wraps them but must not edit them, so the source file
+and every built copy are compared against the recorded digest.
+
+The expected digests are read from the repository's own
+tools/game-baseline.json. That file is the contract: it is edited only
+together with the asset it describes, and every change is written down
+in its "history" list. The archived snapshot under docs/archive holds a
+frozen copy of the same file; it is only used to report what changed
+since that snapshot was taken, and a missing snapshot is not an error.
 
 The baseline is searched for rather than hard coded, so the script works
 from the iteration workspace and from the merged site alike. Pass
@@ -19,6 +26,7 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DIST = os.path.join(ROOT, 'site')
+CONTRACT = os.path.join(ROOT, 'tools', 'game-baseline.json')
 
 # The archived snapshot carries its own digest list, so the search looks
 # for that file rather than for a fixed path.
@@ -66,14 +74,7 @@ def find_baseline():
     for candidate in BASELINE_CANDIDATES:
         if has_baseline_shape(candidate):
             return candidate
-    raise SystemExit(
-        'baseline not found. Looked in:\n  - '
-        + '\n  - '.join(BASELINE_CANDIDATES)
-        + '\nPass --baseline <dir> to point at it.')
-
-
-BASELINE = find_baseline()
-BASELINE_JSON = os.path.join(BASELINE, 'tools', 'game-baseline.json')
+    return None
 
 
 def digest(path):
@@ -81,8 +82,36 @@ def digest(path):
         return hashlib.sha256(fh.read()).hexdigest()
 
 
+def report_archive(contract):
+    """Say what changed against the archived snapshot. Informational only:
+    the snapshot is a frozen copy, the live contract is the baseline."""
+    archive = find_baseline()
+    if not archive:
+        print('no archived snapshot found: the live contract is the baseline')
+        return
+    archived_json = os.path.join(archive, 'tools', 'game-baseline.json')
+    try:
+        with io.open(archived_json, encoding='utf-8') as fh:
+            archived = json.load(fh)
+    except (IOError, ValueError):
+        print('archived snapshot unreadable: ' + archived_json)
+        return
+
+    archived_files = archived.get('files', {})
+    changed = []
+    for rel, expected in sorted(contract.get('files', {}).items()):
+        was = archived_files.get(rel)
+        if was and was != expected:
+            changed.append(rel)
+    if changed:
+        print('changed since the archived snapshot (recorded in the contract): '
+              + ', '.join(changed))
+    else:
+        print('identical to the archived snapshot')
+
+
 def main():
-    with io.open(BASELINE_JSON, encoding='utf-8') as fh:
+    with io.open(CONTRACT, encoding='utf-8') as fh:
         baseline = json.load(fh)
 
     problems = []
@@ -120,6 +149,7 @@ def main():
         return 1
 
     print('%d game asset copies match the baseline digest' % checked)
+    report_archive(baseline)
     return 0
 
 

@@ -20,13 +20,17 @@ learning-hub/
 ├─ assets/                       ← 真源：共享前端
 │  ├─ css/{tokens,shell}.css     外壳与设计令牌
 │  ├─ css/{flashcards,theme-}.css 游戏样式与主题覆盖
+│  ├─ css/review.css             复习中心与复习轮次的样式
 │  ├─ js/engine.js               闪卡引擎（游戏资产，字节不改）
 │  ├─ js/site.js                 四级导航、面包屑、滚动保留
-│  └─ js/player.js               闪卡页面包屑与返回链接
-├─ templates/{site,flashcards}.html
+│  ├─ js/player.js               闪卡页面包屑与返回链接
+│  ├─ js/review-store.js         复习状态服务：读取、更新、持久化
+│  ├─ js/review.js               复习中心页面：路由、学科、清单
+│  └─ js/review-session.js       复习轮次：队列、翻面、结果反馈
+├─ templates/{site,flashcards,review-session}.html
 ├─ site/                         ← 产物：自包含部署单元
-│  ├─ ap/                        15 个文件（6 个页面 + 9 个资源）
-│  └─ ad/                        15 个文件
+│  ├─ ap/                        20 个文件（7 个页面 + 13 个资源）
+│  └─ ad/                        20 个文件
 ├─ tools/                        构建与校验
 ├─ docs/
 │  ├─ REPO-SETUP-GUIDE.md        建仓指引（零基础版）
@@ -53,7 +57,7 @@ learning-hub/
 |---|---|---|
 | Overview | `index.html` | 仪表盘 |
 | Courses | `courses.html` | 学科列表 |
-| Review | `review.html` | 待复查词表与未完成章节 |
+| Review | `review.html` | 复习中心：学科 → 章节 → 复习清单 |
 
 从侧栏进入某个页面后，该页面即是这一块的**第一层级**：
 
@@ -65,6 +69,8 @@ learning-hub/
 
 - Section 点击直接进入 Flashcards，没有活动选择页。
 - Flashcards 是唯一可见的学习活动。
+- **Review 是独立的一条路径**：`Review → 学科 → 章节 → 复习清单 → 复习轮次`。
+  闪卡页里没有复习清单，两条路径共用术语数据但互不嵌套。
 - 返回控件一律是纯图标（箭头），不附文字；无障碍标签保留在 `aria-label`。
 - 闪卡页有一个固定在左上角的圆形返回键，指向所属学科页；引擎自己的返回键
   （退出本章、退回欢迎页）留在原位，靠位置与形状区分职责。

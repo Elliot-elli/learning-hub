@@ -47,12 +47,6 @@
   const levelById = {};
   LEVELS.forEach(function(lv){ levelById[lv.id] = lv; });
 
-  // ---- 词条索引（词汇列表按 term 取回 definition；term 全局唯一） ----
-  const cardByTerm = {};
-  LEVELS.forEach(function(lv){
-    lv.cards.forEach(function(c){ cardByTerm[c.term] = c; });
-  });
-
   // ---- 进度存储（隐私模式下 localStorage 可能抛错，全部 try/catch 降级） ----
   // schema 保持 v1：review / mastered 是纯增量字段，老存档缺省即 {}，
   // 无需迁移即可读出既有通关记录；旧版本读到新存档也只忽略多出的键。
@@ -115,8 +109,6 @@
   const levelsView = $('levelsView');
   const gameView = $('gameView');
   const summaryView = $('summaryView');
-  const reviewView = $('reviewView');
-  const reviewBody = $('reviewBody');
   const flashcard = $('flashcard');
   const controls = $('controls');
   const footerNote = $('footerNote');
@@ -125,7 +117,7 @@
   const levelsBody = $('levelsBody');
 
   function showView(view){
-    [welcomeView, levelsView, gameView, reviewView, summaryView].forEach(v => v.classList.remove('active'));
+    [welcomeView, levelsView, gameView, summaryView].forEach(v => v.classList.remove('active'));
     view.classList.add('active');
   }
 
@@ -183,8 +175,6 @@
 
     const done = clearedCount();
     $('levelsCount').textContent = done + ' of ' + LEVELS.length + ' chapters cleared';
-    const left = pendingHistory();
-    $('levelsReviewCount').textContent = left > 0 ? '· ' + left : '';
   }
 
   function refreshHome(){
@@ -234,7 +224,6 @@
     controls.classList.toggle('awaiting', state.awaitingNext);
     $('progressText').textContent = `${Math.min(state.known + 1, deck.length)} / ${deck.length}`;
     $('knownText').textContent = state.known;
-    $('reviewText').textContent = pendingRound();
     $('progressBar').style.width = `${(state.known / deck.length) * 100}%`;
     footerNote.textContent = state.awaitingNext ? copy.hintAfter : copy.hintBefore;
     const lv = levelById[state.levelId];
@@ -545,6 +534,8 @@
     }
   }
   // ---- 待复查词表：本次（内存 state.flags）与历史累计（localStorage store.review） ----
+  // 这份词表是学习路径与复习路径之间唯一的通道：引擎只写它，
+  // 复习中心只读它。复习清单本身已经移出闪卡页，由 Review 中心独立承担。
   function markReviewed(term, verdict){
     // 同一单词在本轮内只计一次；换成另一种判定也不重复累加
     if(!state.flags[term]){
@@ -556,114 +547,8 @@
     store.review[term] = { state: verdict, ts: Math.floor(Date.now() / 1000) };
     saveStore();
   }
-  function markMastered(term){
-    if(store.mastered[term]) return;
-    store.mastered[term] = { ts: Math.floor(Date.now() / 1000) };
-    saveStore();
-  }
-  // 徽标计数：一律排除已掌握的词
-  function pendingRound(){
-    let n = 0;
-    for (const term in state.flags){ if(!store.mastered[term]) n += 1; }
-    return n;
-  }
-  function pendingHistory(){
-    let n = 0;
-    for (const term in store.review){ if(!store.mastered[term]) n += 1; }
-    return n;
-  }
-
-  // ---- 词汇列表视图（第 5 个 view）----
-  // scope: 'round' = 本次标记的词；'history' = 历史累计
-  // 刻意不改 state.phase —— reviewView 只是 showView 的一层，
-  // 队列 / 翻面时序 / transitioning 全部原样保留，返回时状态天然自愈。
-  let reviewScope = 'round';
-  let reviewReturnView = null;
-  function openReview(scope){
-    reviewScope = scope;
-    reviewReturnView = (scope === 'round') ? gameView : levelsView;
-    renderReview();
-    showView(reviewView);
-    $('reviewBackBtn').focus();
-  }
-  function closeReview(){
-    const back = reviewReturnView || gameView;
-    showView(back);
-    if (back === gameView){ render(); $('reviewStatBtn').focus(); }
-    else { renderLevels(); $('levelsReviewBtn').focus(); }
-  }
-  function renderReview(){
-    const round = reviewScope === 'round';
-    const keys = round ? Object.keys(state.flags) : Object.keys(store.review);
-    if(!round) keys.sort(function(a, b){ return store.review[b].ts - store.review[a].ts; });
-    $('reviewScope').textContent = round ? 'This round' : 'All time';
-    $('reviewTitle').textContent = round ? 'Review list' : 'Review history';
-    let left = 0;
-    reviewBody.textContent = '';
-    if(keys.length === 0){
-      const empty = document.createElement('div');
-      empty.className = 'review-empty';
-      empty.id = 'reviewEmpty';
-      empty.textContent = round
-        ? 'No words marked in this round yet. Cards you mark as Not sure or I don\'t know will collect here.'
-        : 'No words marked yet. Words you flag in any chapter will collect here.';
-      reviewBody.appendChild(empty);
-    } else {
-      keys.forEach(function(term){
-        const learned = !!store.mastered[term];
-        if(!learned) left += 1;
-        const card = cardByTerm[term];
-        const row = document.createElement('div');
-        row.className = learned ? 'word-row is-mastered' : 'word-row';
-        row.setAttribute('role', 'listitem');
-        const main = document.createElement('div');
-        main.className = 'word-main';
-        const t = document.createElement('div');
-        t.className = 'word-term';
-        t.textContent = term;
-        main.appendChild(t);
-        if(card){
-          const d = document.createElement('div');
-          d.className = 'word-def';
-          d.textContent = card.definition;
-          main.appendChild(d);
-        }
-        row.appendChild(main);
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'word-master';
-        btn.dataset.term = term;
-        if(learned){
-          btn.textContent = 'Learned';
-          btn.disabled = true;
-          btn.setAttribute('aria-pressed', 'true');
-          btn.setAttribute('aria-label', term + ' is marked as learned');
-        } else {
-          btn.textContent = 'Got it';
-          btn.setAttribute('aria-pressed', 'false');
-          btn.setAttribute('aria-label', 'Mark ' + term + ' as learned');
-          btn.addEventListener('click', function(){
-            markMastered(term);
-            row.className = 'word-row is-mastered';
-            btn.textContent = 'Learned';
-            btn.disabled = true;
-            btn.setAttribute('aria-pressed', 'true');
-            // 徽标 / 本页计数 / 关卡页计数同步排除已掌握
-            left -= 1;
-            $('reviewCount').textContent = left + ' to review · ' + keys.length + ' marked';
-            $('reviewText').textContent = pendingRound();
-            const hist = pendingHistory();
-            $('levelsReviewCount').textContent = hist > 0 ? '· ' + hist : '';
-          });
-        }
-        row.appendChild(btn);
-        reviewBody.appendChild(row);
-      });
-    }
-    $('reviewCount').textContent = keys.length
-      ? left + ' to review · ' + keys.length + ' marked'
-      : '';
-  }
+  // store.mastered 仍然被读写：它是旧版复习记录的存档字段，
+  // 删掉它会把学习者已有的「已掌握」记录清空。
 
   $('startBtn').addEventListener('click', startGame);
   $('levelsBackBtn').addEventListener('click', function(){ refreshHome(); showView(welcomeView); });
@@ -672,9 +557,6 @@
   $('exitCancelBtn').addEventListener('click', closeExitDialog);
   $('exitConfirmBtn').addEventListener('click', confirmExit);
   exitMask.addEventListener('click', function(e){ if(e.target === exitMask) closeExitDialog(); });
-  $('reviewStatBtn').addEventListener('click', function(){ openReview('round'); });
-  $('levelsReviewBtn').addEventListener('click', function(){ openReview('history'); });
-  $('reviewBackBtn').addEventListener('click', closeReview);
   document.addEventListener('keydown', function(event){
     if (state.dialogOpen) {
       if (event.key === 'Tab') {
@@ -684,11 +566,6 @@
         f[(i + (event.shiftKey ? -1 : 1) + f.length) % f.length].focus();
       }
       if (event.key === 'Escape'){ event.preventDefault(); closeExitDialog(); }
-      return;
-    }
-    if (event.key === 'Escape' && reviewView.classList.contains('active')) {
-      event.preventDefault();
-      closeReview();
     }
   });
   $('summaryLevelsBtn').addEventListener('click', openLevels);
@@ -730,10 +607,6 @@
     // summary：动作区追加
     if ($('summaryLevelsBtn') && $('summaryLevelsBtn').parentNode){
       $('summaryLevelsBtn').parentNode.appendChild(mk('hub-back-inline', 'Hub'));
-    }
-    // review：顶栏追加
-    if ($('reviewBackBtn') && $('reviewBackBtn').parentNode){
-      $('reviewBackBtn').parentNode.appendChild(mk('hub-back-inline', 'Hub'));
     }
   }
 

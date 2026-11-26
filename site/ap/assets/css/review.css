@@ -1,0 +1,197 @@
+/* Review Center and review session.
+ *
+ * The palette, the radii and the spacing come from tokens.css, so the
+ * review path sits in the same visual system as the rest of the site.
+ * The session page carries its own layout, like the flashcards page
+ * does, because a round of review is a focused screen.
+ */
+
+/* ---------- subject tabs ---------- */
+.review-tabs{
+  display:flex;align-items:center;gap:8px;
+  overflow-x:auto;padding-bottom:4px;
+  scrollbar-width:thin;-webkit-overflow-scrolling:touch;
+}
+.review-tabs::-webkit-scrollbar{height:6px}
+.review-tabs::-webkit-scrollbar-thumb{background:var(--line-strong);border-radius:99px}
+.review-tab{
+  display:inline-flex;align-items:center;gap:9px;flex:none;
+  padding:9px 15px;border-radius:99px;
+  background:var(--surface);box-shadow:var(--shadow-card);
+  border:1px solid transparent;
+  color:var(--ink-soft);font-size:.88rem;font-weight:650;
+  text-decoration:none;white-space:nowrap;
+  transition:background .18s ease,color .18s ease,border-color .18s ease;
+}
+.review-tab:hover{color:var(--ink);text-decoration:none;border-color:var(--line-strong)}
+.review-tab.is-active{background:var(--ink);color:#fff}
+.review-tab-count{
+  min-width:22px;padding:1px 7px;border-radius:99px;
+  background:var(--surface-alt);color:var(--ink-soft);
+  font-size:.72rem;font-weight:700;text-align:center;
+  font-variant-numeric:tabular-nums;
+}
+.review-tab.is-active .review-tab-count{background:var(--brand-soft);color:var(--brand-deep)}
+
+/* ---------- section rows ---------- */
+.review-row{text-decoration:none;color:inherit}
+.review-row:hover{text-decoration:none;border-color:var(--line-strong)}
+.review-row h3{color:var(--ink)}
+.row-count{
+  font-size:1.05rem;font-weight:800;letter-spacing:-.02em;color:var(--ink);
+  font-variant-numeric:tabular-nums;
+}
+.row-state{font-size:.78rem;font-weight:600;color:var(--muted)}
+.row-arrow{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:26px;height:26px;flex:none;color:var(--muted);
+}
+.row-arrow svg{width:16px;height:16px}
+
+/* ---------- start review ---------- */
+.review-start{
+  display:inline-flex;align-items:center;gap:12px;
+  padding:14px 22px;border-radius:var(--radius-md);
+  background:var(--brand);color:#fff;
+  font-size:.95rem;font-weight:700;text-decoration:none;
+  box-shadow:var(--shadow-card);
+  transition:background .18s ease,transform .18s ease;
+}
+.review-start:hover{background:var(--brand-deep);text-decoration:none;transform:translateY(-1px)}
+.review-start-count{font-variant-numeric:tabular-nums;opacity:.8}
+
+/* ---------- term groups ---------- */
+.review-group{margin-top:22px}
+.review-group-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.review-group-title{
+  margin:0;font-size:.76rem;font-weight:800;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--muted);
+}
+.review-group-count{
+  min-width:22px;padding:1px 7px;border-radius:99px;
+  background:var(--surface-sunk);color:var(--ink-soft);
+  font-size:.72rem;font-weight:700;text-align:center;
+  font-variant-numeric:tabular-nums;
+}
+.review-terms{display:flex;flex-direction:column;gap:8px}
+.review-term{
+  display:flex;align-items:center;gap:14px;
+  padding:13px 16px;border-radius:var(--radius-md);
+  background:var(--surface);box-shadow:var(--shadow-card);
+  border:1px solid transparent;
+  color:var(--ink);text-decoration:none;
+  transition:border-color .18s ease,transform .18s ease;
+}
+.review-term:hover{text-decoration:none;border-color:var(--line-strong);transform:translateY(-1px)}
+.review-term-text{flex:1;min-width:0;font-size:.95rem;font-weight:600}
+
+/* ---------- mastered, folded away ---------- */
+.review-mastered{margin-top:22px}
+.review-mastered summary{cursor:pointer;list-style:none}
+.review-mastered summary::-webkit-details-marker{display:none}
+.review-mastered summary .review-group-head{margin-bottom:0}
+.review-mastered[open] summary .review-group-head{margin-bottom:10px}
+/* A folded group has to look like it can be opened. */
+.review-mastered summary .review-group-head::after{
+  content:"";width:8px;height:8px;flex:none;margin-left:2px;
+  border-right:2px solid var(--line-strong);
+  border-bottom:2px solid var(--line-strong);
+  transform:rotate(45deg) translate(-2px,-2px);
+  transition:transform .18s ease;
+}
+.review-mastered[open] summary .review-group-head::after{
+  transform:rotate(-135deg) translate(-2px,-2px);
+}
+
+/* ---------- review session ---------- */
+.rs{
+  min-height:100dvh;
+  display:flex;flex-direction:column;gap:18px;
+  max-width:880px;margin:0 auto;
+  padding:clamp(18px,3.4vw,34px);
+}
+.rs-top{display:flex;align-items:center;gap:14px}
+.rs-back{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:36px;height:36px;flex:none;border-radius:50%;
+  background:var(--surface);box-shadow:var(--shadow-card);color:var(--ink-soft);
+  text-decoration:none;
+  transition:color .18s ease,transform .18s ease;
+}
+.rs-back:hover{color:var(--brand);text-decoration:none;transform:translateX(-2px)}
+.rs-back svg{width:17px;height:17px}
+.rs-section{flex:1;min-width:0;font-size:.95rem;font-weight:700;color:var(--ink)}
+.rs-progress{
+  font-size:.9rem;font-weight:750;color:var(--muted);
+  font-variant-numeric:tabular-nums;
+}
+.rs-stage{flex:1;display:flex;align-items:center;justify-content:center;min-height:0}
+.rs-card{
+  width:min(100%,640px);min-height:min(46vh,320px);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:18px;padding:clamp(26px,5vw,56px);text-align:center;
+  background:var(--surface);border-radius:var(--radius-lg);
+  box-shadow:var(--shadow-pop);
+}
+.rs-term{
+  margin:0;font-size:clamp(1.55rem,4vw,2.6rem);font-weight:800;
+  letter-spacing:-.03em;line-height:1.15;overflow-wrap:anywhere;
+}
+.rs-answer{
+  width:100%;padding-top:18px;border-top:1px solid var(--line);
+  animation:rs-in .22s ease;
+}
+@keyframes rs-in{
+  from{opacity:0;transform:translateY(6px)}
+  to{opacity:1;transform:none}
+}
+.rs-definition{margin:0;font-size:clamp(.95rem,1.3vw,1.08rem);line-height:1.7;color:var(--ink-soft)}
+.rs-actions{
+  display:flex;justify-content:center;align-items:center;gap:10px;
+  flex-wrap:wrap;min-height:52px;
+}
+.rs-reveal{
+  height:48px;padding:0 30px;border:0;border-radius:12px;
+  background:var(--brand);color:#fff;font-size:.92rem;font-weight:700;
+  transition:background .18s ease,transform .18s ease;
+}
+.rs-reveal:hover{background:var(--brand-deep);transform:translateY(-1px)}
+.rs-results{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+.rs-btn{
+  min-width:118px;height:48px;padding:0 20px;border-radius:12px;
+  border:1px solid var(--line-strong);background:var(--surface);
+  color:var(--ink);font-size:.9rem;font-weight:700;text-decoration:none;
+  display:inline-flex;align-items:center;justify-content:center;
+  transition:background .18s ease,border-color .18s ease,transform .18s ease;
+}
+.rs-btn:hover{transform:translateY(-1px);text-decoration:none}
+.rs-again{border-color:#E3BB5B;background:#FFF7C9;color:#6B531A}
+.rs-again:hover{background:#F3E2AE}
+.rs-unsure{background:var(--surface-alt);color:var(--ink-soft)}
+.rs-unsure:hover{border-color:var(--brand);color:var(--brand-deep)}
+.rs-got{border-color:var(--brand);background:var(--brand);color:#fff}
+.rs-got:hover{background:var(--brand-deep)}
+.rs-primary{background:var(--brand);border-color:var(--brand);color:#fff}
+.rs-primary:hover{background:var(--brand-deep)}
+.rs-done{
+  display:flex;flex-direction:column;align-items:center;gap:16px;
+  width:min(100%,560px);padding:clamp(30px,5vw,54px);text-align:center;
+  background:var(--surface);border-radius:var(--radius-lg);box-shadow:var(--shadow-pop);
+}
+.rs-done-title{margin:0;font-size:1.5rem;font-weight:800;letter-spacing:-.02em}
+.rs-done-count{
+  margin:0;font-size:2.1rem;font-weight:800;letter-spacing:-.03em;color:var(--brand-deep);
+}
+.rs-error{margin:0;text-align:center;color:var(--rose);font-size:.86rem;font-weight:600}
+.rs-empty{margin:auto}
+
+/* ---------- responsive ---------- */
+@media (max-width:560px){
+  .review-tab{padding:8px 13px;font-size:.82rem}
+  .review-term{padding:12px 14px}
+  .rs{padding:14px;gap:14px}
+  .rs-card{min-height:min(40vh,260px);padding:22px}
+  .rs-results{width:100%}
+  .rs-results .rs-btn{min-width:0;flex:1;padding:0 8px}
+  .rs-done .rs-btn{width:100%}
+}
